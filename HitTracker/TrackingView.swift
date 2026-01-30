@@ -484,12 +484,6 @@ struct SoftballFieldView: View {
                             .stroke(Color.green, lineWidth: 2)
                     )
 
-                // Infield dirt - sized to cover base paths
-                InfieldShape()
-                    .fill(Color.brown.opacity(0.3))
-                    .frame(width: geometry.size.width * 0.7, height: geometry.size.height * 0.7)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.82)
-
                 // Base paths
                 BasePathsView()
                     .stroke(Color.white, lineWidth: 2)
@@ -572,12 +566,12 @@ struct InfieldShape: Shape {
         var path = Path()
 
         let center = CGPoint(x: rect.midX, y: rect.maxY)
-        let maxRadiusForWidth = rect.width / 1.414
-        let maxRadiusForHeight = rect.height
-        let radius = min(maxRadiusForWidth, maxRadiusForHeight) * 0.8
+        // Use full height as radius to extend far enough
+        let radius = rect.height
 
         path.move(to: center)
-        path.addArc(center: center, radius: radius, startAngle: .degrees(225), endAngle: .degrees(315), clockwise: false)
+        // Wider arc (180° to 360°) to fully cover the diamond from foul line to foul line
+        path.addArc(center: center, radius: radius, startAngle: .degrees(180), endAngle: .degrees(360), clockwise: false)
         path.closeSubpath()
 
         return path
