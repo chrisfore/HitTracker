@@ -484,17 +484,17 @@ struct SoftballFieldView: View {
                             .stroke(Color.green, lineWidth: 2)
                     )
 
-                // Infield dirt
+                // Infield dirt - sized to cover base paths
                 InfieldShape()
                     .fill(Color.brown.opacity(0.3))
-                    .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.5)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.75)
+                    .frame(width: geometry.size.width * 0.7, height: geometry.size.height * 0.7)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.82)
 
                 // Base paths
                 BasePathsView()
                     .stroke(Color.white, lineWidth: 2)
-                    .frame(width: geometry.size.width * 0.35, height: geometry.size.height * 0.35)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.78)
+                    .frame(width: geometry.size.width * 0.4, height: geometry.size.height * 0.4)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.82)
 
                 // Bases
                 BasesView(size: geometry.size)
@@ -608,10 +608,10 @@ struct BasesView: View {
 
     var body: some View {
         let baseSize: CGFloat = 12
-        let diamondWidth = size.width * 0.35
-        let diamondHeight = size.height * 0.35
+        let diamondWidth = size.width * 0.4
+        let diamondHeight = size.height * 0.4
         let centerX = size.width / 2
-        let centerY = size.height * 0.78
+        let centerY = size.height * 0.82
 
         ZStack {
             // Home plate
