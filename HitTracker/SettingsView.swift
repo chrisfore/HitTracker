@@ -58,16 +58,7 @@ struct SettingsView: View {
                             editedTeamName = team.name
                             showingEditTeamName = true
                         } label: {
-                            HStack {
-                                Text("Change Team Name")
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                Text(team.name)
-                                    .foregroundColor(.secondary)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+                            Label("Change Team Name", systemImage: "pencil")
                         }
 
                         Button(role: .destructive) {
