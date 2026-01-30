@@ -122,9 +122,9 @@ xcodebuild -project HitTracker.xcodeproj -scheme HitTracker -sdk iphonesimulator
 
 # Install & Launch
 xcrun simctl install "iPhone 17 Pro" /path/to/HitTracker.app
-xcrun simctl launch "iPhone 17 Pro" com.cfore.HitTracker
+xcrun simctl launch "iPhone 17 Pro" com.cfore.hittracker
 ```
 
 - **Target**: iOS 17.0+
-- **Bundle ID**: `com.cfore.HitTracker`
+- **Bundle ID**: `com.cfore.hittracker`
 - **Test devices**: iPhone 17 Pro, iPad simulators
