@@ -748,6 +748,21 @@ struct TeamOverviewSection: View {
     }
 
     var body: some View {
+        if !relevantHits.isEmpty {
+            Section("Spray Chart") {
+                VStack(spacing: 12) {
+                    HStack {
+                        Spacer()
+                        MiniSprayChart(hits: relevantHits)
+                            .frame(width: 200, height: 200)
+                        Spacer()
+                    }
+                    SprayChartLegend()
+                }
+                .padding(.vertical)
+            }
+        }
+
         Section("Hits by Player") {
             ForEach(playerHitCounts, id: \.0.id) { player, count in
                 Button {
@@ -768,21 +783,6 @@ struct TeamOverviewSection: View {
                             .foregroundColor(.secondary)
                     }
                 }
-            }
-        }
-
-        if !relevantHits.isEmpty {
-            Section("Spray Chart") {
-                VStack(spacing: 12) {
-                    HStack {
-                        Spacer()
-                        MiniSprayChart(hits: relevantHits)
-                            .frame(width: 200, height: 200)
-                        Spacer()
-                    }
-                    SprayChartLegend()
-                }
-                .padding(.vertical)
             }
         }
 
