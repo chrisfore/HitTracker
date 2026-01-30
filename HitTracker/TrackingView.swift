@@ -4,8 +4,7 @@ struct TrackingView: View {
     @EnvironmentObject var database: DatabaseManager
     @State private var selectedPlayer: Player?
     @State private var showingHitInput = false
-    @State private var tapLocation: CGPoint = .zero
-    @State private var fieldSize: CGSize = .zero
+    @State private var normalizedTapLocation: CGPoint = .zero  // Already normalized 0-1
     @State private var selectedPitchFilter: PitchStats?
 
     var sortedPlayers: [Player] {
@@ -47,17 +46,14 @@ struct TrackingView: View {
                 }
 
                 // Softball Field (resizes to fit available space)
-                GeometryReader { geometry in
-                    SoftballFieldView(
-                        hits: playerHits,
-                        pitchFilter: selectedPitchFilter,
-                        onTap: { location in
-                            tapLocation = location
-                            fieldSize = geometry.size
-                            showingHitInput = true
-                        }
-                    )
-                }
+                SoftballFieldView(
+                    hits: playerHits,
+                    pitchFilter: selectedPitchFilter,
+                    onTap: { normalizedLocation in
+                        normalizedTapLocation = normalizedLocation
+                        showingHitInput = true
+                    }
+                )
                 .padding()
 
                 // Hit Type Legend
@@ -99,13 +95,11 @@ struct TrackingView: View {
                     playerName: selectedPlayer?.displayName ?? "",
                     onSave: { hitType, pitchType, pitchLocation in
                         if let player = selectedPlayer, let teamId = database.selectedTeamId {
-                            let relativeX = tapLocation.x / fieldSize.width
-                            let relativeY = tapLocation.y / fieldSize.height
                             database.addHit(
                                 playerId: player.id,
                                 teamId: teamId,
-                                locationX: relativeX,
-                                locationY: relativeY,
+                                locationX: normalizedTapLocation.x,
+                                locationY: normalizedTapLocation.y,
                                 hitType: hitType,
                                 pitchType: pitchType,
                                 pitchLocation: pitchLocation
@@ -247,7 +241,10 @@ struct SoftballFieldView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture { location in
-                onTap(location)
+                // Normalize coordinates to 0-1 range using internal geometry
+                let normalizedX = location.x / geometry.size.width
+                let normalizedY = location.y / geometry.size.height
+                onTap(CGPoint(x: normalizedX, y: normalizedY))
             }
         }
         .aspectRatio(1, contentMode: .fit)
@@ -463,12 +460,29 @@ struct HitInputSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(selectedHitType, selectedPitchType, selectedPitchLocation)
-                        dismiss()
+                        saveAndDismiss()
                     }
                 }
             }
+            .onChange(of: selectedPitchType) {
+                checkAutoSave()
+            }
+            .onChange(of: selectedPitchLocation) {
+                checkAutoSave()
+            }
         }
+    }
+
+    private func checkAutoSave() {
+        // Auto-save when all three fields are selected
+        if selectedPitchType != nil && selectedPitchLocation != nil {
+            saveAndDismiss()
+        }
+    }
+
+    private func saveAndDismiss() {
+        onSave(selectedHitType, selectedPitchType, selectedPitchLocation)
+        dismiss()
     }
 }
 
