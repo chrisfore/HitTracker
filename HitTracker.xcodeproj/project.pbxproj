@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		526A1A912F2D5ED4003A78E9 /* AppIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526A1A902F2D5ED4003A78E9 /* AppIconView.swift */; };
 		AAA00001 /* HitTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00010 /* HitTrackerApp.swift */; };
 		AAA00002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00011 /* ContentView.swift */; };
 		AAA00003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00012 /* Models.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		526A1A902F2D5ED4003A78E9 /* AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconView.swift; sourceTree = "<group>"; };
 		AAA00009 /* HitTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HitTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA00010 /* HitTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTrackerApp.swift; sourceTree = "<group>"; };
 		AAA00011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 				AAA00019 /* TeamSetupView.swift */,
 				AAA0001A /* HelpView.swift */,
 				AAA00017 /* Assets.xcassets */,
+				526A1A902F2D5ED4003A78E9 /* AppIconView.swift */,
 			);
 			path = HitTracker;
 			sourceTree = "<group>";
@@ -159,6 +162,7 @@
 				AAA00081 /* AppVersion.swift in Sources */,
 				AAA00082 /* TeamSetupView.swift in Sources */,
 				AAA00083 /* HelpView.swift in Sources */,
+				526A1A912F2D5ED4003A78E9 /* AppIconView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
