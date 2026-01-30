@@ -43,7 +43,6 @@ struct ResultsView: View {
                     TeamOverviewSection(selectedTeam: selectedTeam)
                 }
             }
-            .navigationTitle("Results")
             .onChange(of: selectedTeam) {
                 // Reset player selection when team changes
                 selectedPlayer = nil

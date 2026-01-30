@@ -183,7 +183,6 @@ struct SettingsView: View {
                 }
                 .listRowBackground(Color.clear)
             }
-            .navigationTitle("Settings")
             .toolbar {
                 EditButton()
             }
