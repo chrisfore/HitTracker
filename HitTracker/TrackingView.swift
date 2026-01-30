@@ -2,10 +2,12 @@ import SwiftUI
 
 struct TrackingView: View {
     @EnvironmentObject var database: DatabaseManager
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedPlayer: Player?
     @State private var showingHitInput = false
     @State private var normalizedTapLocation: CGPoint = .zero  // Already normalized 0-1
     @State private var selectedPitchFilter: PitchStats?
+    @State private var isLandscape = false
 
     var sortedPlayers: [Player] {
         guard let teamId = database.selectedTeamId else { return [] }
@@ -25,82 +27,171 @@ struct TrackingView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
-                let headerHeight: CGFloat = sortedPlayers.isEmpty ? 0 : 52
-                let pitchStatsHeight: CGFloat = pitchStats.isEmpty ? 0 : 70
-                let legendHeight: CGFloat = 44
-                let horizontalPadding: CGFloat = 32
-                let availableHeight = geometry.size.height - headerHeight - pitchStatsHeight - legendHeight
-                let availableWidth = geometry.size.width - horizontalPadding
-                let fieldSize = min(availableWidth, availableHeight)
+                let currentIsLandscape = geometry.size.width > geometry.size.height
 
-                VStack(spacing: 0) {
-                    // Player Selector Dropdown
-                    if !sortedPlayers.isEmpty {
-                        Picker("Select Player", selection: $selectedPlayer) {
-                            Text("Select Player").tag(nil as Player?)
-                            ForEach(sortedPlayers) { player in
-                                Text(player.displayName).tag(player as Player?)
+                Group {
+                    if currentIsLandscape {
+                    // Landscape layout: controls on left, field on right
+                    HStack(spacing: 0) {
+                        // Left side: Team, Player, Pitch Stats
+                        VStack(alignment: .leading, spacing: 12) {
+                            // Team Selector
+                            Menu {
+                                ForEach(database.opponentTeams) { team in
+                                    Button {
+                                        database.selectTeam(team.id)
+                                        selectedPlayer = nil
+                                        selectedPitchFilter = nil
+                                    } label: {
+                                        HStack {
+                                            Text(team.name)
+                                            if team.id == database.selectedTeamId {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(database.selectedTeam?.name ?? "Select Team")
+                                        .font(.headline)
+                                    Image(systemName: "chevron.down")
+                                        .font(.caption)
+                                }
                             }
-                        }
-                        .pickerStyle(.menu)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                    }
 
-                    // Pitch Stats for Selected Batter (tappable for filtering)
-                    if !pitchStats.isEmpty {
-                        PitchStatsBar(stats: pitchStats, selectedFilter: $selectedPitchFilter)
+                            // Player Selector
+                            if !sortedPlayers.isEmpty {
+                                Picker("Select Player", selection: $selectedPlayer) {
+                                    Text("Select Player").tag(nil as Player?)
+                                    ForEach(sortedPlayers) { player in
+                                        Text(player.displayName).tag(player as Player?)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                            }
+
+                            // Pitch Stats (vertical in landscape)
+                            if !pitchStats.isEmpty {
+                                PitchStatsBarVertical(stats: pitchStats, selectedFilter: $selectedPitchFilter)
+                            }
+
+                            Spacer()
+                        }
+                        .padding()
+                        .frame(width: geometry.size.width * 0.3)
+
+                        // Right side: Field and Legend
+                        VStack(spacing: 0) {
+                            let fieldSize = min(geometry.size.width * 0.65, geometry.size.height - 50)
+
+                            Spacer(minLength: 0)
+
+                            SoftballFieldView(
+                                hits: playerHits,
+                                pitchFilter: selectedPitchFilter,
+                                onTap: { normalizedLocation in
+                                    normalizedTapLocation = normalizedLocation
+                                    showingHitInput = true
+                                }
+                            )
+                            .frame(width: fieldSize, height: fieldSize)
+
+                            Spacer(minLength: 0)
+
+                            HitTypeLegend()
+                                .padding(.bottom, 8)
+                        }
+                        .frame(width: geometry.size.width * 0.7)
+                    }
+                } else {
+                    // Portrait layout: vertical stack
+                    let headerHeight: CGFloat = sortedPlayers.isEmpty ? 0 : 52
+                    let pitchStatsHeight: CGFloat = pitchStats.isEmpty ? 0 : 70
+                    let legendHeight: CGFloat = 44
+                    let horizontalPadding: CGFloat = 32
+                    let availableHeight = geometry.size.height - headerHeight - pitchStatsHeight - legendHeight
+                    let availableWidth = geometry.size.width - horizontalPadding
+                    let fieldSize = min(availableWidth, availableHeight)
+
+                    VStack(spacing: 0) {
+                        // Player Selector Dropdown
+                        if !sortedPlayers.isEmpty {
+                            Picker("Select Player", selection: $selectedPlayer) {
+                                Text("Select Player").tag(nil as Player?)
+                                ForEach(sortedPlayers) { player in
+                                    Text(player.displayName).tag(player as Player?)
+                                }
+                            }
+                            .pickerStyle(.menu)
                             .padding(.horizontal)
-                            .padding(.bottom, 8)
-                    }
-
-                    Spacer(minLength: 0)
-
-                    // Softball Field (sized to fill available space)
-                    SoftballFieldView(
-                        hits: playerHits,
-                        pitchFilter: selectedPitchFilter,
-                        onTap: { normalizedLocation in
-                            normalizedTapLocation = normalizedLocation
-                            showingHitInput = true
+                            .padding(.vertical, 8)
                         }
-                    )
-                    .frame(width: fieldSize, height: fieldSize)
 
-                    Spacer(minLength: 0)
+                        // Pitch Stats for Selected Batter (tappable for filtering)
+                        if !pitchStats.isEmpty {
+                            PitchStatsBar(stats: pitchStats, selectedFilter: $selectedPitchFilter)
+                                .padding(.horizontal)
+                                .padding(.bottom, 8)
+                        }
 
-                    // Hit Type Legend
-                    HitTypeLegend()
-                        .padding(.horizontal)
-                        .padding(.bottom, 12)
+                        Spacer(minLength: 0)
+
+                        // Softball Field (sized to fill available space)
+                        SoftballFieldView(
+                            hits: playerHits,
+                            pitchFilter: selectedPitchFilter,
+                            onTap: { normalizedLocation in
+                                normalizedTapLocation = normalizedLocation
+                                showingHitInput = true
+                            }
+                        )
+                        .frame(width: fieldSize, height: fieldSize)
+
+                        Spacer(minLength: 0)
+
+                        // Hit Type Legend
+                        HitTypeLegend()
+                            .padding(.horizontal)
+                            .padding(.bottom, 12)
+                    }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
+                }
+                .onChange(of: currentIsLandscape) { _, newValue in
+                    isLandscape = newValue
+                }
+                .onAppear {
+                    isLandscape = geometry.size.width > geometry.size.height
+                }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    // Team selector menu
-                    Menu {
-                        ForEach(database.opponentTeams) { team in
-                            Button {
-                                database.selectTeam(team.id)
-                                selectedPlayer = nil
-                                selectedPitchFilter = nil
-                            } label: {
-                                HStack {
-                                    Text(team.name)
-                                    if team.id == database.selectedTeamId {
-                                        Image(systemName: "checkmark")
+                if !isLandscape {
+                    ToolbarItem(placement: .principal) {
+                        // Team selector menu (only in portrait)
+                        Menu {
+                            ForEach(database.opponentTeams) { team in
+                                Button {
+                                    database.selectTeam(team.id)
+                                    selectedPlayer = nil
+                                    selectedPitchFilter = nil
+                                } label: {
+                                    HStack {
+                                        Text(team.name)
+                                        if team.id == database.selectedTeamId {
+                                            Image(systemName: "checkmark")
+                                        }
                                     }
                                 }
                             }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(database.selectedTeam?.name ?? "Select Team")
-                                .font(.headline)
-                            Image(systemName: "chevron.down")
-                                .font(.caption)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(database.selectedTeam?.name ?? "Select Team")
+                                    .font(.headline)
+                                Image(systemName: "chevron.down")
+                                    .font(.caption)
+                            }
                         }
                     }
                 }
@@ -154,6 +245,55 @@ struct PitchStatsBar: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
+                    .background(isSelected(stat) ? Color.blue : Color(.systemGray6))
+                    .foregroundColor(isSelected(stat) ? .white : .primary)
+                    .cornerRadius(8)
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            if isSelected(stat) {
+                                selectedFilter = nil
+                            } else {
+                                selectedFilter = stat
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func isSelected(_ stat: PitchStats) -> Bool {
+        guard let selected = selectedFilter else { return false }
+        return selected.pitchType == stat.pitchType &&
+               selected.pitchLocation == stat.pitchLocation
+    }
+}
+
+// MARK: - Pitch Stats Bar Vertical (for landscape)
+
+struct PitchStatsBarVertical: View {
+    let stats: [PitchStats]
+    @Binding var selectedFilter: PitchStats?
+
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 8) {
+                ForEach(stats.prefix(5)) { stat in
+                    HStack(spacing: 8) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(stat.pitchType.rawValue)")
+                                .font(.system(size: 11))
+                            Text("\(stat.pitchLocation.rawValue)")
+                                .font(.system(size: 9))
+                                .foregroundColor(isSelected(stat) ? .white.opacity(0.8) : .secondary)
+                        }
+                        Spacer()
+                        Text("\(stat.count)")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
                     .background(isSelected(stat) ? Color.blue : Color(.systemGray6))
                     .foregroundColor(isSelected(stat) ? .white : .primary)
                     .cornerRadius(8)
