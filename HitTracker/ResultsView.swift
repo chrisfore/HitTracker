@@ -114,9 +114,13 @@ struct PlayerStatsSection: View {
         }
 
         Section("Spray Chart") {
-            MiniSprayChart(hits: hits)
-                .frame(height: 200)
-                .padding(.vertical)
+            HStack {
+                Spacer()
+                MiniSprayChart(hits: hits)
+                    .frame(width: 200, height: 200)
+                Spacer()
+            }
+            .padding(.vertical)
         }
     }
 
