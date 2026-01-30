@@ -142,6 +142,18 @@ struct ResultsView: View {
                     selectedTeam = nil
                 }
             }
+            .onChange(of: startDate) {
+                // Ensure end date is not before start date
+                if endDate < startDate {
+                    endDate = startDate
+                }
+            }
+            .onChange(of: endDate) {
+                // Ensure end date is not before start date
+                if endDate < startDate {
+                    endDate = startDate
+                }
+            }
         }
     }
 

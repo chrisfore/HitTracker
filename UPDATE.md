@@ -1,12 +1,18 @@
 # HitTracker Development Status
 
 **Last Updated:** 2026-01-30
-**Current Build:** 1.24
+**Current Build:** 1.25
 
 ## Project Overview
 HitTracker is an iOS SwiftUI app for tracking softball hits against opponent teams. Users scout multiple opponents, each with their own player roster.
 
 ## Recent Changes (This Session)
+
+### Build 1.25 - Production Bug Scrub
+- **Removed dead code**: Cleaned up unused InfieldShape from TrackingView
+- **Removed placeholder feature**: Removed non-functional "Restore Purchases" button from setup
+- **Fixed redundant save**: Logo no longer saved twice during setup
+- **Date validation**: End date automatically adjusts if set before start date in Results
 
 ### Build 1.24 - App Store Release
 - **Settings cleanup**: Simplified "Change Team Name" button (removed redundant team name display)
@@ -63,7 +69,7 @@ HitTracker is an iOS SwiftUI app for tracking softball hits against opponent tea
 | `TeamSetupView.swift` | Initial app setup |
 | `DatabaseManager.swift` | Data persistence |
 | `Models.swift` | Data structures |
-| `AppVersion.swift` | Version tracking (1.24) |
+| `AppVersion.swift` | Version tracking (1.25) |
 
 ## Features
 

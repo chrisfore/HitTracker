@@ -687,23 +687,6 @@ struct SoftballFieldShape: Shape {
     }
 }
 
-struct InfieldShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-
-        let center = CGPoint(x: rect.midX, y: rect.maxY)
-        // Use full height as radius to extend far enough
-        let radius = rect.height
-
-        path.move(to: center)
-        // Wider arc (180° to 360°) to fully cover the diamond from foul line to foul line
-        path.addArc(center: center, radius: radius, startAngle: .degrees(180), endAngle: .degrees(360), clockwise: false)
-        path.closeSubpath()
-
-        return path
-    }
-}
-
 struct BasePathsView: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()

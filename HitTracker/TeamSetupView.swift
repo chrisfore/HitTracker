@@ -8,8 +8,6 @@ struct TeamSetupView: View {
     @State private var showingTeamSetup = false
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var teamLogo: UIImage?
-    @State private var showingRestoreAlert = false
-    @State private var restoreMessage = ""
 
     var body: some View {
         NavigationStack {
@@ -75,24 +73,6 @@ struct TeamSetupView: View {
                         .cornerRadius(10)
                     }
                     .buttonStyle(.plain)
-
-                    // Restore Previous Purchase
-                    Button {
-                        restorePurchases()
-                    } label: {
-                        HStack {
-                            Image(systemName: "arrow.clockwise")
-                                .foregroundColor(.blue)
-                            Text("Restore Previous Purchase")
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.secondary)
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                    }
-                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal)
 
@@ -127,11 +107,6 @@ struct TeamSetupView: View {
                     }
                 })
             }
-            .alert("Restore Purchases", isPresented: $showingRestoreAlert) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(restoreMessage)
-            }
             .onChange(of: selectedPhotoItem) {
                 Task {
                     if let data = try? await selectedPhotoItem?.loadTransferable(type: Data.self),
@@ -145,18 +120,7 @@ struct TeamSetupView: View {
     }
 
     private func startTracking() {
-        // Save logo if selected
-        if let logo = teamLogo {
-            database.saveLogo(logo)
-        }
         hasCompletedSetup = true
-    }
-
-    private func restorePurchases() {
-        // Placeholder for App Store restore functionality
-        // In a real implementation, this would call StoreKit to restore purchases
-        restoreMessage = "No previous purchases found to restore."
-        showingRestoreAlert = true
     }
 }
 
