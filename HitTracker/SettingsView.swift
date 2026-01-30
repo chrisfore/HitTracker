@@ -269,6 +269,11 @@ struct SettingsView: View {
                 TextField("Name (Optional)", text: $newPlayerName)
                 TextField("Number", text: $newPlayerNumber)
                     .keyboardType(.numberPad)
+                    .onChange(of: newPlayerNumber) { _, newValue in
+                        if newValue.count > 3 {
+                            newPlayerNumber = String(newValue.prefix(3))
+                        }
+                    }
                 Button("Cancel", role: .cancel) {
                     newPlayerName = ""
                     newPlayerNumber = ""
@@ -337,13 +342,6 @@ struct SettingsView: View {
                     selectedTeamForManagement = database.opponentTeams.first
                 }
             }
-        }
-    }
-
-    private func deletePlayer(at offsets: IndexSet, from team: Team) {
-        let teamPlayers = database.getPlayers(for: team.id)
-        for index in offsets {
-            database.removePlayer(teamPlayers[index])
         }
     }
 

@@ -194,6 +194,11 @@ struct TeamSetupSheet: View {
                             TextField("Number", text: $player.number)
                                 .keyboardType(.numberPad)
                                 .frame(width: 60)
+                                .onChange(of: player.number) { _, newValue in
+                                    if newValue.count > 3 {
+                                        player.number = String(newValue.prefix(3))
+                                    }
+                                }
 
                             TextField("Name (Optional)", text: $player.name)
                         }

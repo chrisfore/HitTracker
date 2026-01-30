@@ -6,6 +6,7 @@ struct TrackingView: View {
     @State private var selectedPlayer: Player?
     @State private var showingHitInput = false
     @State private var showingAddTeam = false
+    @State private var showingAddPlayers = false
     @State private var normalizedTapLocation: CGPoint = .zero  // Already normalized 0-1
     @State private var selectedPitchFilter: PitchStats?
     @State private var isLandscape = false
@@ -15,12 +16,20 @@ struct TrackingView: View {
         return database.getPlayers(for: teamId)
     }
 
-    var playerHits: [Hit] {
-        guard let player = selectedPlayer else { return [] }
-        return database.getHits(forPlayer: player.id)
+    var displayedHits: [Hit] {
+        // If player selected, show player hits
+        if let player = selectedPlayer {
+            return database.getHits(forPlayer: player.id)
+        }
+        // If no player but team selected, show all team hits
+        if let teamId = database.selectedTeamId {
+            return database.getHits(forTeam: teamId)
+        }
+        return []
     }
 
     var pitchStats: [PitchStats] {
+        // Only show pitch stats when a specific player is selected
         guard let player = selectedPlayer else { return [] }
         return database.getPitchStats(for: player.id)
     }
@@ -83,7 +92,7 @@ struct TrackingView: View {
                                     }
                                 }
 
-                                // Player Selector
+                                // Player Selector or Create Players button
                                 if !sortedPlayers.isEmpty {
                                     Picker("Select Player", selection: $selectedPlayer) {
                                         Text("Select Player").tag(nil as Player?)
@@ -92,6 +101,13 @@ struct TrackingView: View {
                                         }
                                     }
                                     .pickerStyle(.menu)
+                                } else if database.selectedTeamId != nil {
+                                    Button {
+                                        showingAddPlayers = true
+                                    } label: {
+                                        Label("Create Players", systemImage: "person.badge.plus")
+                                            .foregroundColor(.blue)
+                                    }
                                 }
 
                                 // Pitch Stats (vertical in landscape)
@@ -110,8 +126,9 @@ struct TrackingView: View {
 
                                 let landscapeFieldSize = max(min(safeWidth * 0.65, safeHeight - 50), 100)
                                 SoftballFieldView(
-                                    hits: playerHits,
+                                    hits: displayedHits,
                                     pitchFilter: selectedPitchFilter,
+                                    allowTap: selectedPlayer != nil,
                                     onTap: { normalizedLocation in
                                         normalizedTapLocation = normalizedLocation
                                         showingHitInput = true
@@ -137,7 +154,7 @@ struct TrackingView: View {
                         let fieldSize = max(min(availableWidth, availableHeight), 100)
 
                         VStack(spacing: 0) {
-                            // Player Selector Dropdown
+                            // Player Selector Dropdown or Create Players button
                             if !sortedPlayers.isEmpty {
                                 Picker("Select Player", selection: $selectedPlayer) {
                                     Text("Select Player").tag(nil as Player?)
@@ -147,6 +164,15 @@ struct TrackingView: View {
                                 }
                                 .pickerStyle(.menu)
                                 .padding(.horizontal)
+                                .padding(.vertical, 8)
+                            } else if database.selectedTeamId != nil {
+                                // Show Create Players button when team selected but no players
+                                Button {
+                                    showingAddPlayers = true
+                                } label: {
+                                    Label("Create Players", systemImage: "person.badge.plus")
+                                        .foregroundColor(.blue)
+                                }
                                 .padding(.vertical, 8)
                             }
 
@@ -161,8 +187,9 @@ struct TrackingView: View {
 
                             // Softball Field (sized to fill available space)
                             SoftballFieldView(
-                                hits: playerHits,
+                                hits: displayedHits,
                                 pitchFilter: selectedPitchFilter,
+                                allowTap: selectedPlayer != nil,
                                 onTap: { normalizedLocation in
                                     normalizedTapLocation = normalizedLocation
                                     showingHitInput = true
@@ -259,9 +286,29 @@ struct TrackingView: View {
                     }
                 })
             }
+            .sheet(isPresented: $showingAddPlayers) {
+                if let teamId = database.selectedTeamId {
+                    AddPlayersSheet(teamId: teamId, teamName: database.selectedTeam?.name ?? "Team") { players in
+                        for player in players {
+                            database.addPlayer(teamId: teamId, name: player.name, number: player.number)
+                        }
+                    }
+                }
+            }
             .onChange(of: database.selectedTeamId) {
                 selectedPlayer = nil
                 selectedPitchFilter = nil
+            }
+            .onChange(of: selectedPlayer) {
+                // Clear pitch filter when player changes
+                selectedPitchFilter = nil
+            }
+            .onChange(of: database.players) {
+                // Clear selection if selected player was deleted
+                if let player = selectedPlayer,
+                   !database.players.contains(where: { $0.id == player.id }) {
+                    selectedPlayer = nil
+                }
             }
         }
     }
@@ -295,6 +342,11 @@ struct AddTeamSheet: View {
                             TextField("Number", text: $player.number)
                                 .keyboardType(.numberPad)
                                 .frame(width: 60)
+                                .onChange(of: player.number) { _, newValue in
+                                    if newValue.count > 3 {
+                                        player.number = String(newValue.prefix(3))
+                                    }
+                                }
 
                             TextField("Name (Optional)", text: $player.name)
                         }
@@ -341,6 +393,78 @@ struct AddTeamPlayerInput: Identifiable {
     let id = UUID()
     var name: String
     var number: String
+}
+
+// MARK: - Add Players Sheet
+
+struct AddPlayersSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let teamId: UUID
+    let teamName: String
+    let onComplete: ([AddTeamPlayerInput]) -> Void
+
+    @State private var players: [AddTeamPlayerInput] = [
+        AddTeamPlayerInput(name: "", number: "")
+    ]
+
+    var isValid: Bool {
+        players.contains { !$0.number.isEmpty }
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Add Players to \(teamName)") {
+                    ForEach($players) { $player in
+                        HStack {
+                            TextField("Number", text: $player.number)
+                                .keyboardType(.numberPad)
+                                .frame(width: 60)
+                                .onChange(of: player.number) { _, newValue in
+                                    if newValue.count > 3 {
+                                        player.number = String(newValue.prefix(3))
+                                    }
+                                }
+
+                            TextField("Name (Optional)", text: $player.name)
+                        }
+                    }
+                    .onDelete(perform: deletePlayer)
+
+                    Button {
+                        players.append(AddTeamPlayerInput(name: "", number: ""))
+                    } label: {
+                        Label("Add Another Player", systemImage: "plus.circle")
+                    }
+                }
+
+                Section {
+                    Button {
+                        onComplete(players.filter { !$0.number.isEmpty })
+                        dismiss()
+                    } label: {
+                        Text("Save Players")
+                            .frame(maxWidth: .infinity)
+                            .fontWeight(.semibold)
+                    }
+                    .disabled(!isValid)
+                }
+            }
+            .navigationTitle("Create Players")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private func deletePlayer(at offsets: IndexSet) {
+        players.remove(atOffsets: offsets)
+    }
 }
 
 // MARK: - Pitch Stats Bar (Tappable for filtering)
@@ -471,6 +595,7 @@ struct HitTypeLegend: View {
 struct SoftballFieldView: View {
     let hits: [Hit]
     var pitchFilter: PitchStats?
+    var allowTap: Bool = true
     let onTap: (CGPoint) -> Void
 
     var body: some View {
@@ -515,6 +640,7 @@ struct SoftballFieldView: View {
                 let normalizedY = location.y / geometry.size.height
                 onTap(CGPoint(x: normalizedX, y: normalizedY))
             }
+            .allowsHitTesting(allowTap)
         }
     }
 
