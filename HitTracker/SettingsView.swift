@@ -22,6 +22,7 @@ struct SettingsView: View {
 
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var teamLogo: UIImage?
+    @State private var isEditingLineup = false
 
     var body: some View {
         NavigationStack {
@@ -73,6 +74,9 @@ struct SettingsView: View {
                         let teamPlayers = database.getPlayers(for: team.id)
                         ForEach(teamPlayers) { player in
                             HStack {
+                                Image(systemName: "line.3.horizontal")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
                                 Text("#\(player.number)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -83,9 +87,16 @@ struct SettingsView: View {
                                 Text("\(database.getHits(forPlayer: player.id).count) hits")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                                if isEditingLineup {
+                                    Button(role: .destructive) {
+                                        deletePlayer(player, from: team)
+                                    } label: {
+                                        Image(systemName: "minus.circle.fill")
+                                            .foregroundColor(.red)
+                                    }
+                                }
                             }
                         }
-                        .onDelete { offsets in deletePlayer(at: offsets, from: team) }
                         .onMove { source, dest in movePlayer(from: source, to: dest, in: team) }
 
                         Button {
@@ -94,6 +105,12 @@ struct SettingsView: View {
                             showingAddPlayer = true
                         } label: {
                             Label("Add Player", systemImage: "plus.circle")
+                        }
+
+                        Button {
+                            isEditingLineup.toggle()
+                        } label: {
+                            Label(isEditingLineup ? "Done Editing" : "Edit the Lineup", systemImage: isEditingLineup ? "checkmark.circle" : "pencil.circle")
                         }
                     }
                 }
@@ -182,9 +199,6 @@ struct SettingsView: View {
                     }
                 }
                 .listRowBackground(Color.clear)
-            }
-            .toolbar {
-                EditButton()
             }
 
             // Add Team Alert
@@ -314,6 +328,10 @@ struct SettingsView: View {
         for index in offsets {
             database.removePlayer(teamPlayers[index])
         }
+    }
+
+    private func deletePlayer(_ player: Player, from team: Team) {
+        database.removePlayer(player)
     }
 
     private func movePlayer(from source: IndexSet, to destination: Int, in team: Team) {
