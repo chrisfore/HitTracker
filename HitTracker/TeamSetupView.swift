@@ -16,24 +16,25 @@ struct TeamSetupView: View {
     }
 
     var isValid: Bool {
-        !teamName.isEmpty && players.contains { !$0.name.isEmpty && !$0.number.isEmpty }
+        // Only require team name and at least one player with a number
+        !teamName.isEmpty && players.contains { !$0.number.isEmpty }
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Team Information") {
-                    TextField("Team Name", text: $teamName)
+                Section("Opponent Team Information") {
+                    TextField("Opponent Team Name", text: $teamName)
                 }
 
-                Section("Lineup") {
+                Section("Opponent Lineup") {
                     ForEach($players) { $player in
                         HStack {
                             TextField("Number", text: $player.number)
                                 .keyboardType(.numberPad)
                                 .frame(width: 60)
 
-                            TextField("Player Name", text: $player.name)
+                            TextField("Name (Optional)", text: $player.name)
                         }
                     }
                     .onDelete(perform: deletePlayer)
@@ -56,7 +57,7 @@ struct TeamSetupView: View {
                     .disabled(!isValid)
                 }
             }
-            .navigationTitle("Team Setup")
+            .navigationTitle("Scout Setup")
         }
     }
 
@@ -65,11 +66,14 @@ struct TeamSetupView: View {
     }
 
     private func saveAndContinue() {
-        database.updateTeamName(teamName)
+        // Create the opponent team
+        let team = database.addTeam(name: teamName)
+        database.selectTeam(team.id)
 
-        let validPlayers = players.filter { !$0.name.isEmpty && !$0.number.isEmpty }
-        for (index, player) in validPlayers.enumerated() {
-            database.addPlayer(name: player.name, number: player.number)
+        // Only add players with numbers (name is optional now)
+        let validPlayers = players.filter { !$0.number.isEmpty }
+        for player in validPlayers {
+            database.addPlayer(teamId: team.id, name: player.name, number: player.number)
         }
 
         hasCompletedSetup = true

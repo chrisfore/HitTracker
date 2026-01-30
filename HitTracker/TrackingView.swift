@@ -6,9 +6,11 @@ struct TrackingView: View {
     @State private var showingHitInput = false
     @State private var tapLocation: CGPoint = .zero
     @State private var fieldSize: CGSize = .zero
+    @State private var selectedPitchFilter: PitchStats?
 
     var sortedPlayers: [Player] {
-        database.team.sortedPlayers
+        guard let teamId = database.selectedTeamId else { return [] }
+        return database.getPlayers(for: teamId)
     }
 
     var selectedPlayer: Player? {
@@ -18,7 +20,7 @@ struct TrackingView: View {
 
     var playerHits: [Hit] {
         guard let player = selectedPlayer else { return [] }
-        return database.getHits(for: player.id)
+        return database.getHits(forPlayer: player.id)
     }
 
     var pitchStats: [PitchStats] {
@@ -38,17 +40,18 @@ struct TrackingView: View {
                     .padding(.vertical, 8)
                 }
 
-                // Pitch Stats for Selected Batter
+                // Pitch Stats for Selected Batter (tappable for filtering)
                 if !pitchStats.isEmpty {
-                    PitchStatsBar(stats: pitchStats)
+                    PitchStatsBar(stats: pitchStats, selectedFilter: $selectedPitchFilter)
                         .padding(.horizontal)
                         .padding(.bottom, 8)
                 }
 
-                // Softball Field
+                // Softball Field (smaller to fit screen)
                 GeometryReader { geometry in
                     SoftballFieldView(
                         hits: playerHits,
+                        pitchFilter: selectedPitchFilter,
                         onTap: { location in
                             tapLocation = location
                             fieldSize = geometry.size
@@ -57,23 +60,54 @@ struct TrackingView: View {
                     )
                 }
                 .padding()
+                .frame(maxHeight: 320)
+
+                // Hit Type Legend
+                HitTypeLegend()
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+
+                Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text(database.team.name)
-                        .font(.headline)
+                    // Team selector menu
+                    Menu {
+                        ForEach(database.opponentTeams) { team in
+                            Button {
+                                database.selectTeam(team.id)
+                                selectedPlayerIndex = 0
+                                selectedPitchFilter = nil
+                            } label: {
+                                HStack {
+                                    Text(team.name)
+                                    if team.id == database.selectedTeamId {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(database.selectedTeam?.name ?? "Select Team")
+                                .font(.headline)
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                        }
+                    }
                 }
             }
             .sheet(isPresented: $showingHitInput) {
                 HitInputSheet(
-                    playerName: selectedPlayer?.name ?? "",
+                    playerName: selectedPlayer?.displayName ?? "",
                     onSave: { hitType, pitchType, pitchLocation in
-                        if let player = selectedPlayer {
+                        if let player = selectedPlayer, let teamId = database.selectedTeamId {
                             let relativeX = tapLocation.x / fieldSize.width
                             let relativeY = tapLocation.y / fieldSize.height
                             database.addHit(
                                 playerId: player.id,
+                                teamId: teamId,
                                 locationX: relativeX,
                                 locationY: relativeY,
                                 hitType: hitType,
@@ -84,6 +118,10 @@ struct TrackingView: View {
                     }
                 )
                 .presentationDetents([.medium])
+            }
+            .onChange(of: database.selectedTeamId) {
+                selectedPlayerIndex = 0
+                selectedPitchFilter = nil
             }
         }
     }
@@ -128,26 +166,22 @@ struct BatterPill: View {
     let isSelected: Bool
 
     var body: some View {
-        HStack(spacing: 6) {
-            Text("#\(player.number)")
-                .font(.caption)
-                .fontWeight(.bold)
-            Text(player.name)
-                .font(.subheadline)
-                .lineLimit(1)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(isSelected ? Color.blue : Color(.systemGray5))
-        .foregroundColor(isSelected ? .white : .primary)
-        .cornerRadius(20)
+        Text(player.displayName)
+            .font(.subheadline)
+            .lineLimit(1)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.blue : Color(.systemGray5))
+            .foregroundColor(isSelected ? .white : .primary)
+            .cornerRadius(20)
     }
 }
 
-// MARK: - Pitch Stats Bar
+// MARK: - Pitch Stats Bar (Tappable for filtering)
 
 struct PitchStatsBar: View {
     let stats: [PitchStats]
+    @Binding var selectedFilter: PitchStats?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -158,17 +192,61 @@ struct PitchStatsBar: View {
                             .font(.system(size: 10))
                         Text("\(stat.pitchLocation.rawValue)")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(isSelected(stat) ? .white.opacity(0.8) : .secondary)
                         Text("\(stat.count)")
                             .font(.caption)
                             .fontWeight(.bold)
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color(.systemGray6))
+                    .background(isSelected(stat) ? Color.blue : Color(.systemGray6))
+                    .foregroundColor(isSelected(stat) ? .white : .primary)
                     .cornerRadius(8)
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            if isSelected(stat) {
+                                selectedFilter = nil
+                            } else {
+                                selectedFilter = stat
+                            }
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private func isSelected(_ stat: PitchStats) -> Bool {
+        guard let selected = selectedFilter else { return false }
+        return selected.pitchType == stat.pitchType &&
+               selected.pitchLocation == stat.pitchLocation
+    }
+}
+
+// MARK: - Hit Type Legend
+
+struct HitTypeLegend: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ForEach(HitType.allCases, id: \.self) { hitType in
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(hitColor(for: hitType))
+                        .frame(width: 10, height: 10)
+                    Text(hitType.rawValue)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+
+    func hitColor(for hitType: HitType) -> Color {
+        switch hitType {
+        case .flyBall: return .blue
+        case .lineDrive: return .red
+        case .popUp: return .purple
+        case .grounder: return .orange
         }
     }
 }
@@ -177,6 +255,7 @@ struct PitchStatsBar: View {
 
 struct SoftballFieldView: View {
     let hits: [Hit]
+    var pitchFilter: PitchStats?
     let onTap: (CGPoint) -> Void
 
     var body: some View {
@@ -205,10 +284,10 @@ struct SoftballFieldView: View {
                 // Bases
                 BasesView(size: geometry.size)
 
-                // Hit dots
+                // Hit dots with filtering
                 ForEach(hits) { hit in
                     Circle()
-                        .fill(hitColor(for: hit.hitType))
+                        .fill(dotColor(for: hit))
                         .frame(width: 16, height: 16)
                         .overlay(
                             Circle()
@@ -226,6 +305,17 @@ struct SoftballFieldView: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
+    }
+
+    func dotColor(for hit: Hit) -> Color {
+        // If filter is active, show matching hits as black
+        if let filter = pitchFilter {
+            if hit.pitchType == filter.pitchType && hit.pitchLocation == filter.pitchLocation {
+                return .black
+            }
+        }
+        // Non-matching or no filter: use original hit type color
+        return hitColor(for: hit.hitType)
     }
 
     func hitColor(for hitType: HitType) -> Color {

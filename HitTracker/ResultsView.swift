@@ -3,20 +3,34 @@ import SwiftUI
 struct ResultsView: View {
     @EnvironmentObject var database: DatabaseManager
     @State private var selectedPlayer: Player?
+    @State private var selectedTeam: Team?
 
-    var sortedPlayers: [Player] {
-        database.team.sortedPlayers
+    var filteredPlayers: [Player] {
+        if let team = selectedTeam {
+            return database.getPlayers(for: team.id)
+        }
+        return database.players.sorted { $0.lineupOrder < $1.lineupOrder }
     }
 
     var body: some View {
         NavigationStack {
             List {
+                // Team Filter
+                Section {
+                    Picker("Team", selection: $selectedTeam) {
+                        Text("All Teams").tag(nil as Team?)
+                        ForEach(database.opponentTeams) { team in
+                            Text(team.name).tag(team as Team?)
+                        }
+                    }
+                }
+
                 // Player Filter
                 Section {
                     Picker("Player", selection: $selectedPlayer) {
                         Text("All Players").tag(nil as Player?)
-                        ForEach(sortedPlayers) { player in
-                            Text("#\(player.number) \(player.name)").tag(player as Player?)
+                        ForEach(filteredPlayers) { player in
+                            Text(player.displayName).tag(player as Player?)
                         }
                     }
                 }
@@ -26,10 +40,14 @@ struct ResultsView: View {
                     PlayerStatsSection(player: player)
                 } else {
                     // Team overview
-                    TeamOverviewSection()
+                    TeamOverviewSection(selectedTeam: selectedTeam)
                 }
             }
             .navigationTitle("Results")
+            .onChange(of: selectedTeam) {
+                // Reset player selection when team changes
+                selectedPlayer = nil
+            }
         }
     }
 }
@@ -41,7 +59,7 @@ struct PlayerStatsSection: View {
     @EnvironmentObject var database: DatabaseManager
 
     var hits: [Hit] {
-        database.getHits(for: player.id)
+        database.getHits(forPlayer: player.id)
     }
 
     var hitTypeStats: [(HitType, Int)] {
@@ -53,7 +71,7 @@ struct PlayerStatsSection: View {
     }
 
     var body: some View {
-        Section("Summary - \(player.name)") {
+        Section("Summary - \(player.displayName)") {
             HStack {
                 Text("Total Hits")
                 Spacer()
@@ -115,22 +133,32 @@ struct PlayerStatsSection: View {
 // MARK: - Team Overview Section
 
 struct TeamOverviewSection: View {
+    let selectedTeam: Team?
     @EnvironmentObject var database: DatabaseManager
 
     var totalHits: Int {
-        database.hits.count
+        if let team = selectedTeam {
+            return database.getHits(forTeam: team.id).count
+        }
+        return database.hits.count
     }
 
     var playerHitCounts: [(Player, Int)] {
-        database.team.sortedPlayers.map { player in
-            (player, database.getHits(for: player.id).count)
+        let players: [Player]
+        if let team = selectedTeam {
+            players = database.getPlayers(for: team.id)
+        } else {
+            players = database.players.sorted { $0.lineupOrder < $1.lineupOrder }
+        }
+        return players.map { player in
+            (player, database.getHits(forPlayer: player.id).count)
         }
     }
 
     var body: some View {
         Section("Team Summary") {
             HStack {
-                Text("Total Team Hits")
+                Text("Total Hits")
                 Spacer()
                 Text("\(totalHits)")
                     .fontWeight(.bold)
@@ -144,7 +172,8 @@ struct TeamOverviewSection: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .frame(width: 30, alignment: .leading)
-                    Text(player.name)
+                    Text(player.name.isEmpty ? "(No name)" : player.name)
+                        .foregroundColor(player.name.isEmpty ? .secondary : .primary)
                     Spacer()
                     Text("\(count)")
                         .foregroundColor(.secondary)

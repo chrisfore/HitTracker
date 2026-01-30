@@ -5,16 +5,20 @@ struct SettingsView: View {
     @EnvironmentObject var database: DatabaseManager
     @AppStorage("isDarkMode") private var isDarkMode = false
 
-    @State private var showingAddPlayer = false
+    @State private var showingAddTeam = false
     @State private var showingEditTeamName = false
+    @State private var showingDeleteTeam = false
+    @State private var showingAddPlayer = false
     @State private var showingClearPlayerHits = false
     @State private var showingClearAllHits = false
     @State private var showingRemoveLogoAlert = false
 
+    @State private var newTeamName = ""
+    @State private var editedTeamName = ""
     @State private var newPlayerName = ""
     @State private var newPlayerNumber = ""
-    @State private var editedTeamName = ""
     @State private var playerToClear: Player?
+    @State private var selectedTeamForManagement: Team?
 
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var teamLogo: UIImage?
@@ -22,67 +26,98 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                // Team Name Section
-                Section("Team") {
+                // Opponent Team Selection Section
+                Section("Opponent Team") {
+                    Picker("Select Team", selection: $selectedTeamForManagement) {
+                        Text("Select a team...").tag(nil as Team?)
+                        ForEach(database.opponentTeams) { team in
+                            Text(team.name).tag(team as Team?)
+                        }
+                    }
+
                     Button {
-                        editedTeamName = database.team.name
-                        showingEditTeamName = true
+                        newTeamName = ""
+                        showingAddTeam = true
                     } label: {
-                        HStack {
-                            Text("Team Name")
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Text(database.team.name)
-                                .foregroundColor(.secondary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                        Label("Create New Team", systemImage: "plus.circle")
+                    }
+
+                    if let team = selectedTeamForManagement {
+                        Button {
+                            editedTeamName = team.name
+                            showingEditTeamName = true
+                        } label: {
+                            HStack {
+                                Text("Team Name")
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Text(team.name)
+                                    .foregroundColor(.secondary)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        Button(role: .destructive) {
+                            showingDeleteTeam = true
+                        } label: {
+                            Label("Delete This Team", systemImage: "trash")
                         }
                     }
                 }
 
-                // Lineup Section
-                Section("Lineup") {
-                    ForEach(database.team.sortedPlayers) { player in
-                        HStack {
-                            Text("#\(player.number)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .frame(width: 35, alignment: .leading)
-                            Text(player.name)
-                            Spacer()
-                            Text("\(database.getHits(for: player.id).count) hits")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                // Lineup Section (filtered by selected team)
+                if let team = selectedTeamForManagement {
+                    Section("Lineup - \(team.name)") {
+                        let teamPlayers = database.getPlayers(for: team.id)
+                        ForEach(teamPlayers) { player in
+                            HStack {
+                                Text("#\(player.number)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 35, alignment: .leading)
+                                Text(player.name.isEmpty ? "(No name)" : player.name)
+                                    .foregroundColor(player.name.isEmpty ? .secondary : .primary)
+                                Spacer()
+                                Text("\(database.getHits(forPlayer: player.id).count) hits")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
                         }
-                    }
-                    .onDelete(perform: deletePlayer)
-                    .onMove(perform: movePlayer)
+                        .onDelete { offsets in deletePlayer(at: offsets, from: team) }
+                        .onMove { source, dest in movePlayer(from: source, to: dest, in: team) }
 
-                    Button {
-                        showingAddPlayer = true
-                    } label: {
-                        Label("Add Player", systemImage: "plus.circle")
+                        Button {
+                            newPlayerName = ""
+                            newPlayerNumber = ""
+                            showingAddPlayer = true
+                        } label: {
+                            Label("Add Player", systemImage: "plus.circle")
+                        }
                     }
                 }
 
                 // Data Management Section
                 Section("Data Management") {
-                    if !database.team.players.isEmpty {
-                        Menu {
-                            ForEach(database.team.sortedPlayers) { player in
-                                Button("\(player.name)") {
-                                    playerToClear = player
-                                    showingClearPlayerHits = true
+                    if let team = selectedTeamForManagement {
+                        let teamPlayers = database.getPlayers(for: team.id)
+                        if !teamPlayers.isEmpty {
+                            Menu {
+                                ForEach(teamPlayers) { player in
+                                    Button(player.displayName) {
+                                        playerToClear = player
+                                        showingClearPlayerHits = true
+                                    }
                                 }
-                            }
-                        } label: {
-                            HStack {
-                                Label("Clear Player Hits", systemImage: "person.crop.circle.badge.minus")
-                                Spacer()
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            } label: {
+                                HStack {
+                                    Label("Clear Player Hits", systemImage: "person.crop.circle.badge.minus")
+                                    Spacer()
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                     }
@@ -94,8 +129,8 @@ struct SettingsView: View {
                     }
                 }
 
-                // Team Logo Section
-                Section("Team Logo") {
+                // Your Team Logo Section
+                Section("Your Team Logo") {
                     if let logo = teamLogo {
                         HStack {
                             Image(uiImage: logo)
@@ -116,7 +151,7 @@ struct SettingsView: View {
                     }
 
                     PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                        Label(teamLogo == nil ? "Add Team Logo" : "Change Team Logo", systemImage: "photo")
+                        Label(teamLogo == nil ? "Add Your Team Logo" : "Change Your Team Logo", systemImage: "photo")
                     }
                 }
 
@@ -153,28 +188,64 @@ struct SettingsView: View {
                 EditButton()
             }
 
+            // Add Team Alert
+            .alert("Create New Team", isPresented: $showingAddTeam) {
+                TextField("Team Name", text: $newTeamName)
+                Button("Cancel", role: .cancel) {
+                    newTeamName = ""
+                }
+                Button("Create") {
+                    if !newTeamName.isEmpty {
+                        let team = database.addTeam(name: newTeamName)
+                        selectedTeamForManagement = team
+                        database.selectTeam(team.id)
+                        newTeamName = ""
+                    }
+                }
+            }
+
             // Edit Team Name Alert
             .alert("Edit Team Name", isPresented: $showingEditTeamName) {
                 TextField("Team Name", text: $editedTeamName)
                 Button("Cancel", role: .cancel) { }
                 Button("Save") {
-                    if !editedTeamName.isEmpty {
-                        database.updateTeamName(editedTeamName)
+                    if !editedTeamName.isEmpty, let team = selectedTeamForManagement {
+                        database.updateTeamName(editedTeamName, for: team.id)
+                        // Update local reference
+                        if let updatedTeam = database.opponentTeams.first(where: { $0.id == team.id }) {
+                            selectedTeamForManagement = updatedTeam
+                        }
                     }
+                }
+            }
+
+            // Delete Team Confirmation
+            .alert("Delete Team", isPresented: $showingDeleteTeam) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    if let team = selectedTeamForManagement {
+                        database.removeTeam(team)
+                        selectedTeamForManagement = database.opponentTeams.first
+                    }
+                }
+            } message: {
+                if let team = selectedTeamForManagement {
+                    Text("Are you sure you want to delete \(team.name)? This will also delete all players and hit data for this team. This cannot be undone.")
                 }
             }
 
             // Add Player Alert
             .alert("Add Player", isPresented: $showingAddPlayer) {
-                TextField("Player Name", text: $newPlayerName)
+                TextField("Name (Optional)", text: $newPlayerName)
                 TextField("Number", text: $newPlayerNumber)
+                    .keyboardType(.numberPad)
                 Button("Cancel", role: .cancel) {
                     newPlayerName = ""
                     newPlayerNumber = ""
                 }
                 Button("Add") {
-                    if !newPlayerName.isEmpty && !newPlayerNumber.isEmpty {
-                        database.addPlayer(name: newPlayerName, number: newPlayerNumber)
+                    if !newPlayerNumber.isEmpty, let team = selectedTeamForManagement {
+                        database.addPlayer(teamId: team.id, name: newPlayerName, number: newPlayerNumber)
                         newPlayerName = ""
                         newPlayerNumber = ""
                     }
@@ -188,13 +259,13 @@ struct SettingsView: View {
                 }
                 Button("Clear", role: .destructive) {
                     if let player = playerToClear {
-                        database.clearHits(for: player.id)
+                        database.clearHits(forPlayer: player.id)
                     }
                     playerToClear = nil
                 }
             } message: {
                 if let player = playerToClear {
-                    Text("Are you sure you want to clear all hit data for \(player.name)? This cannot be undone.")
+                    Text("Are you sure you want to clear all hit data for \(player.displayName)? This cannot be undone.")
                 }
             }
 
@@ -205,7 +276,7 @@ struct SettingsView: View {
                     database.clearAllHits()
                 }
             } message: {
-                Text("Are you sure you want to clear ALL hit data for the entire team? This cannot be undone.")
+                Text("Are you sure you want to clear ALL hit data for all teams? This cannot be undone.")
             }
 
             // Remove Logo Confirmation
@@ -217,7 +288,7 @@ struct SettingsView: View {
                     selectedPhotoItem = nil
                 }
             } message: {
-                Text("Are you sure you want to remove the team logo?")
+                Text("Are you sure you want to remove your team logo?")
             }
 
             .onChange(of: selectedPhotoItem) {
@@ -231,21 +302,25 @@ struct SettingsView: View {
             }
             .onAppear {
                 teamLogo = database.loadLogo()
+                // Default to first team if none selected
+                if selectedTeamForManagement == nil {
+                    selectedTeamForManagement = database.opponentTeams.first
+                }
             }
         }
     }
 
-    private func deletePlayer(at offsets: IndexSet) {
-        let players = database.team.sortedPlayers
+    private func deletePlayer(at offsets: IndexSet, from team: Team) {
+        let teamPlayers = database.getPlayers(for: team.id)
         for index in offsets {
-            database.removePlayer(players[index])
+            database.removePlayer(teamPlayers[index])
         }
     }
 
-    private func movePlayer(from source: IndexSet, to destination: Int) {
-        var players = database.team.sortedPlayers
-        players.move(fromOffsets: source, toOffset: destination)
-        database.reorderPlayers(players)
+    private func movePlayer(from source: IndexSet, to destination: Int, in team: Team) {
+        var teamPlayers = database.getPlayers(for: team.id)
+        teamPlayers.move(fromOffsets: source, toOffset: destination)
+        database.reorderPlayers(teamPlayers, for: team.id)
     }
 }
 

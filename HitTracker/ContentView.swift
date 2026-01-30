@@ -11,7 +11,7 @@ struct ContentView: View {
                 TabView {
                     TrackingView()
                         .tabItem {
-                            Label("Track", systemImage: "sportscourt")
+                            Label("Track", systemImage: "figure.baseball")
                         }
 
                     ResultsView()
