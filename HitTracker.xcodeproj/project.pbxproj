@@ -9,14 +9,30 @@
 /* Begin PBXBuildFile section */
 		AAA00001 /* HitTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00010 /* HitTrackerApp.swift */; };
 		AAA00002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00011 /* ContentView.swift */; };
+		AAA00003 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00012 /* Models.swift */; };
+		AAA00004 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00013 /* DatabaseManager.swift */; };
+		AAA00005 /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00014 /* TrackingView.swift */; };
+		AAA00006 /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00015 /* ResultsView.swift */; };
+		AAA00007 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00016 /* SettingsView.swift */; };
 		AAA00008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AAA00017 /* Assets.xcassets */; };
+		AAA00081 /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00018 /* AppVersion.swift */; };
+		AAA00082 /* TeamSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA00019 /* TeamSetupView.swift */; };
+		AAA00083 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA0001A /* HelpView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		AAA00009 /* HitTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HitTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA00010 /* HitTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTrackerApp.swift; sourceTree = "<group>"; };
 		AAA00011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AAA00012 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		AAA00013 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		AAA00014 /* TrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
+		AAA00015 /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
+		AAA00016 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AAA00017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AAA00018 /* AppVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
+		AAA00019 /* TeamSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamSetupView.swift; sourceTree = "<group>"; };
+		AAA0001A /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +59,14 @@
 			children = (
 				AAA00010 /* HitTrackerApp.swift */,
 				AAA00011 /* ContentView.swift */,
+				AAA00012 /* Models.swift */,
+				AAA00013 /* DatabaseManager.swift */,
+				AAA00014 /* TrackingView.swift */,
+				AAA00015 /* ResultsView.swift */,
+				AAA00016 /* SettingsView.swift */,
+				AAA00018 /* AppVersion.swift */,
+				AAA00019 /* TeamSetupView.swift */,
+				AAA0001A /* HelpView.swift */,
 				AAA00017 /* Assets.xcassets */,
 			);
 			path = HitTracker;
@@ -84,7 +108,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					AAA00040 = {
 						CreatedOnToolsVersion = 15.0;
@@ -127,6 +151,14 @@
 			files = (
 				AAA00001 /* HitTrackerApp.swift in Sources */,
 				AAA00002 /* ContentView.swift in Sources */,
+				AAA00003 /* Models.swift in Sources */,
+				AAA00004 /* DatabaseManager.swift in Sources */,
+				AAA00005 /* TrackingView.swift in Sources */,
+				AAA00006 /* ResultsView.swift in Sources */,
+				AAA00007 /* SettingsView.swift in Sources */,
+				AAA00081 /* AppVersion.swift in Sources */,
+				AAA00082 /* TeamSetupView.swift in Sources */,
+				AAA00083 /* HelpView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +200,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = P6TJJMP74D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -191,6 +224,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -231,6 +265,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = P6TJJMP74D;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -247,6 +282,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -259,7 +295,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = P6TJJMP74D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = HitTracker;
@@ -289,7 +324,6 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = P6TJJMP74D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = HitTracker;

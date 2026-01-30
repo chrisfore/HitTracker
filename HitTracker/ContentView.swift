@@ -1,16 +1,35 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var database = DatabaseManager.shared
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    @AppStorage("hasCompletedSetup") private var hasCompletedSetup = false
+
     var body: some View {
-        VStack {
-            Image(systemName: "baseball.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("HitTracker")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+        Group {
+            if hasCompletedSetup && database.hasTeamSetup {
+                TabView {
+                    TrackingView()
+                        .tabItem {
+                            Label("Track", systemImage: "sportscourt")
+                        }
+
+                    ResultsView()
+                        .tabItem {
+                            Label("Results", systemImage: "chart.bar")
+                        }
+
+                    SettingsView()
+                        .tabItem {
+                            Label("Settings", systemImage: "gear")
+                        }
+                }
+            } else {
+                TeamSetupView(hasCompletedSetup: $hasCompletedSetup)
+            }
         }
-        .padding()
+        .environmentObject(database)
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
 
