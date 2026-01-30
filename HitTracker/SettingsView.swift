@@ -29,10 +29,27 @@ struct SettingsView: View {
             List {
                 // Team Management Section
                 Section("Manage Teams") {
-                    Picker("Select Team", selection: $selectedTeamForManagement) {
-                        Text("Select a team...").tag(nil as Team?)
+                    Menu {
                         ForEach(database.opponentTeams) { team in
-                            Text(team.name).tag(team as Team?)
+                            Button {
+                                selectedTeamForManagement = team
+                            } label: {
+                                HStack {
+                                    Text(team.name)
+                                    if team.id == selectedTeamForManagement?.id {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Text(selectedTeamForManagement?.name ?? "Select a team...")
+                                .foregroundColor(selectedTeamForManagement != nil ? .primary : .secondary)
+                            Spacer()
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                     }
 
