@@ -487,8 +487,8 @@ struct SoftballFieldView: View {
                 // Base paths
                 BasePathsView()
                     .stroke(Color.white, lineWidth: 2)
-                    .frame(width: geometry.size.width * 0.4, height: geometry.size.height * 0.4)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.82)
+                    .frame(width: geometry.size.width * 0.32, height: geometry.size.height * 0.32)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.8)
 
                 // Bases
                 BasesView(size: geometry.size)
@@ -602,10 +602,10 @@ struct BasesView: View {
 
     var body: some View {
         let baseSize: CGFloat = 12
-        let diamondWidth = size.width * 0.4
-        let diamondHeight = size.height * 0.4
+        let diamondWidth = size.width * 0.32
+        let diamondHeight = size.height * 0.32
         let centerX = size.width / 2
-        let centerY = size.height * 0.82
+        let centerY = size.height * 0.8
 
         ZStack {
             // Home plate
