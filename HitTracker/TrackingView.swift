@@ -25,6 +25,14 @@ struct TrackingView: View {
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
+                let headerHeight: CGFloat = sortedPlayers.isEmpty ? 0 : 52
+                let pitchStatsHeight: CGFloat = pitchStats.isEmpty ? 0 : 70
+                let legendHeight: CGFloat = 44
+                let horizontalPadding: CGFloat = 32
+                let availableHeight = geometry.size.height - headerHeight - pitchStatsHeight - legendHeight
+                let availableWidth = geometry.size.width - horizontalPadding
+                let fieldSize = min(availableWidth, availableHeight)
+
                 VStack(spacing: 0) {
                     // Player Selector Dropdown
                     if !sortedPlayers.isEmpty {
@@ -43,13 +51,12 @@ struct TrackingView: View {
                     if !pitchStats.isEmpty {
                         PitchStatsBar(stats: pitchStats, selectedFilter: $selectedPitchFilter)
                             .padding(.horizontal)
+                            .padding(.bottom, 8)
                     }
 
-                    // Spacer between pitch stats and field
-                    Spacer()
-                        .frame(maxHeight: 20)
+                    Spacer(minLength: 0)
 
-                    // Softball Field (resizes to fit available space)
+                    // Softball Field (sized to fill available space)
                     SoftballFieldView(
                         hits: playerHits,
                         pitchFilter: selectedPitchFilter,
@@ -58,16 +65,16 @@ struct TrackingView: View {
                             showingHitInput = true
                         }
                     )
-                    .padding(.horizontal)
+                    .frame(width: fieldSize, height: fieldSize)
 
-                    Spacer()
-                        .frame(maxHeight: 16)
+                    Spacer(minLength: 0)
 
                     // Hit Type Legend
                     HitTypeLegend()
                         .padding(.horizontal)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, 12)
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -255,7 +262,6 @@ struct SoftballFieldView: View {
                 onTap(CGPoint(x: normalizedX, y: normalizedY))
             }
         }
-        .aspectRatio(1, contentMode: .fit)
     }
 
     func dotColor(for hit: Hit) -> Color {

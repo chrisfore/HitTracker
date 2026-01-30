@@ -26,20 +26,13 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                // Opponent Team Selection Section
-                Section("Opponent Team") {
+                // Team Management Section
+                Section("Manage Teams") {
                     Picker("Select Team", selection: $selectedTeamForManagement) {
                         Text("Select a team...").tag(nil as Team?)
                         ForEach(database.opponentTeams) { team in
                             Text(team.name).tag(team as Team?)
                         }
-                    }
-
-                    Button {
-                        newTeamName = ""
-                        showingAddTeam = true
-                    } label: {
-                        Label("Create New Team", systemImage: "plus.circle")
                     }
 
                     if let team = selectedTeamForManagement {
@@ -58,6 +51,19 @@ struct SettingsView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+
+                        Button(role: .destructive) {
+                            showingDeleteTeam = true
+                        } label: {
+                            Label("Delete Team", systemImage: "trash")
+                        }
+                    }
+
+                    Button {
+                        newTeamName = ""
+                        showingAddTeam = true
+                    } label: {
+                        Label("Create New Team", systemImage: "plus.circle")
                     }
                 }
 
@@ -113,12 +119,6 @@ struct SettingsView: View {
                                         .foregroundColor(.secondary)
                                 }
                             }
-                        }
-
-                        Button(role: .destructive) {
-                            showingDeleteTeam = true
-                        } label: {
-                            Label("Delete Team: \(team.name)", systemImage: "trash")
                         }
                     }
 
