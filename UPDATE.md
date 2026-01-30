@@ -1,113 +1,112 @@
 # HitTracker Development Status
 
 **Last Updated:** 2026-01-30
-**Current Build:** 1.15
+**Current Build:** 1.23
 
 ## Project Overview
 HitTracker is an iOS SwiftUI app for tracking softball hits against opponent teams. Users scout multiple opponents, each with their own player roster.
 
 ## Recent Changes (This Session)
 
-### PDF Export & Date Filter (Build 1.15)
-- **Export button** in Results toolbar (share icon)
-- **Fixed blank share sheet** - Added delay to ensure PDF is written before showing
-- **Loading indicator** - Shows spinner while generating PDF
-- **Smart file naming:**
-  - Player selected: `PlayerName_2026-01-30_130250.pdf`
-  - Team selected: `TeamName_2026-01-30_130250.pdf`
-  - All data: `All_Data_2026-01-30_130250.pdf`
-  - Timestamp makes each export unique
-- **Date range filtering:**
-  - Toggle "Filter by Date" to enable
-  - Start/End date pickers
-  - Filters all displayed statistics
-  - Date range shown on exported PDF
-- **PDF includes:**
-  - Team logo (if available)
-  - Report title with generation timestamp
-  - Date range (if filtering enabled)
-  - Summary statistics (filtered by date)
-  - Hit type breakdown with color indicators
-  - Pitch breakdown (for individual players)
-  - Spray chart visualization (filtered hits only)
-  - Color legend
-  - Footer with app version
-- **Share sheet** allows saving to Files, AirDrop, email, etc.
+### Build 1.23 - Results Spray Chart Improvements
+- **Base paths & bases**: Spray charts now include base paths and base markers (matching Track page)
+- **Reordered player stats**: Spray chart shown first, then hit types and pitch breakdown below
+- **PDF export updated**: Player stats PDF also shows spray chart first
 
-### Bug Fixes (Build 1.13)
-1. **Fixed: Field tap allowed without player selected**
-   - Added `allowTap` parameter to SoftballFieldView
-   - Field taps now only register when a player is selected
-   - Prevents confusing UX where user fills form but nothing saves
+### Build 1.19 - Results Page Improvements
+- **Reordered sections**: "Hits by Player" now appears before "Team Summary"
+- **Tappable player rows**: Tap any player in the list to view their detailed stats
+- **Chevron indicators** show rows are interactive
 
-2. **Fixed: Stale player selection after deletion**
-   - Added `.onChange(of: database.players)` handlers in TrackingView and ResultsView
-   - Automatically clears selectedPlayer if the player was deleted
+### Build 1.18 - Track Page Team View
+- **Combined team hits**: When no player selected, shows all hits from selected team
+- **Hit input protection**: Field taps only allowed when both team AND player selected
 
-3. **Fixed: Pitch filter not cleared on player change**
-   - Added `.onChange(of: selectedPlayer)` to clear filter when switching players
-   - Prevents showing irrelevant filter for different players
+### Build 1.17 - UI Cleanup
+- Removed "Summary - #2" heading from player stats
+- "Total Hits" now part of "Hit Types" section
 
-4. **Fixed: "All Teams" player sorting inconsistent**
-   - Players now sorted by team name first, then lineup order
-   - Consistent ordering when viewing all teams in Results
+### Build 1.16 - Export Button Redesign
+- Export button moved into list format (matches "Filter by Date" style)
+- Removed toolbar export button
 
-5. **Fixed: Stale team selection in ResultsView**
-   - Added `.onChange(of: database.opponentTeams)` handler
-   - Clears team selection if the team was deleted
+### Build 1.15 - PDF Export & Date Filter
+- **Fixed blank share sheet**: Added delay to ensure PDF is written
+- **Loading indicator**: Shows spinner while generating PDF
+- **Smart file naming**: `PlayerName_2026-01-30_130250.pdf` or `TeamName_...` or `All_Data_...`
+- **Date range filtering**: Toggle to filter hits by date range
+- **Date range in exports**: PDF shows filtered date range
 
-6. **Added: Empty state in Results view**
-   - Shows helpful message when no teams exist
-   - Directs user to Settings to create a team
+### Build 1.13 - Bug Fixes
+- Fixed field tap allowed without player selected
+- Fixed stale player selection after deletion
+- Fixed pitch filter not clearing on player change
+- Fixed "All Teams" player sorting inconsistent
+- Added empty state in Results view
+- Removed unused function in SettingsView
 
-7. **Removed: Unused function in SettingsView**
-   - Cleaned up `deletePlayer(at offsets:, from team:)` that was never called
-
-### Previous Features (Build 1.12)
-- Create Players button on Track page when team has no players
+### Build 1.12 - Player Creation
+- "Create Players" button on Track page when team has no players
 - 3-digit limit on all player number inputs
-
-### Earlier Session Changes
-- Multi-team architecture (Teams, Players, Hits with UUIDs)
-- Field sizing fixed to fit on screen
-- iPad tab bar icons fixed
-- Removed infield dirt, shrunk base paths
-- Removed navigation titles from Results/Settings
-- Lineup editing redesigned
-- Team picker replaced with full-width Menu
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `TrackingView.swift` | Main tracking screen, field display, sheets |
+| `TrackingView.swift` | Main tracking screen, field display, hit input |
+| `ResultsView.swift` | Stats display, PDF export, date filtering |
 | `SettingsView.swift` | Team/player management, lineup editing |
-| `ResultsView.swift` | Stats display with filtering |
 | `ContentView.swift` | Tab navigation, setup flow |
 | `TeamSetupView.swift` | Initial app setup |
 | `DatabaseManager.swift` | Data persistence |
 | `Models.swift` | Data structures |
-| `AppVersion.swift` | Version tracking (1.13) |
+| `AppVersion.swift` | Version tracking (1.23) |
 
-## Architecture Notes
+## Features
+
+### Track Page
+- Team selector in toolbar
+- Player dropdown (shows "Create Players" if none exist)
+- Softball field with hit visualization
+- Combined team hits when no player selected
+- Pitch stats bar (tappable to filter hits)
+- Hit type legend
+- Landscape/portrait adaptive layouts
+
+### Results Page
+- Date range filtering (toggle + date pickers)
+- PDF export with team logo
+- Team/player filter dropdowns
+- Tappable player list to view individual stats
+- Hit type breakdown with colors
+- Pitch breakdown
+- Spray chart visualization
+
+### Settings Page
+- Team management (create, rename, delete)
+- Player management (add, reorder, delete)
+- Lineup editing with drag handles
+- Clear player/all hit data
+- Team logo upload
+- Dark mode toggle
+- Help documentation
+
+## Architecture
 
 ### Data Model
 - `Team`: id (UUID), name
-- `Player`: id (UUID), teamId (UUID), name, number, lineupOrder
-- `Hit`: id (UUID), playerId (UUID), teamId (UUID), locationX/Y, hitType, pitchType, pitchLocation
+- `Player`: id (UUID), teamId, name, number, lineupOrder
+- `Hit`: id (UUID), playerId, teamId, locationX/Y, hitType, pitchType, pitchLocation, timestamp
 
 ### Key Patterns
-- `@EnvironmentObject var database: DatabaseManager` for data access
+- `@EnvironmentObject var database: DatabaseManager`
 - `@AppStorage` for persisted settings
-- `.onChange` handlers to sync state when data changes
+- `.onChange` handlers for state synchronization
 - GeometryReader for responsive layouts
+- Background thread PDF generation
 
-## Testing
-- Build target: iOS 17.0+
-- Test devices: iPhone 17 Pro, iPad simulators
-- Bundle ID: `com.cfore.hittracker`
+## Build & Test
 
-## Build Commands
 ```bash
 # Build
 xcodebuild -project HitTracker.xcodeproj -scheme HitTracker -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
@@ -117,5 +116,6 @@ xcrun simctl install "iPhone 17 Pro" /path/to/HitTracker.app
 xcrun simctl launch "iPhone 17 Pro" com.cfore.hittracker
 ```
 
-## Plan File Location
-Full implementation plan: `~/.claude/plans/witty-sniffing-hejlsberg.md`
+- **Target**: iOS 17.0+
+- **Bundle ID**: `com.cfore.hittracker`
+- **Test devices**: iPhone 17 Pro, iPad simulators

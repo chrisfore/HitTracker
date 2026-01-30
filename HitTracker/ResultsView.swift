@@ -374,6 +374,11 @@ class PDFGenerator {
         let hitTypeStats = getHitTypeStats(for: hits)
         let pitchStats = getPitchStats(for: hits)
 
+        // Spray Chart (first)
+        y = drawSectionHeader("Spray Chart", at: y)
+        y = drawSprayChart(hits: hits, at: y)
+        y = drawLegend(at: y)
+
         // Hit Types section
         y = drawSectionHeader("Hit Types", at: y)
         y = drawStatRow("Total Hits", value: "\(hits.count)", at: y)
@@ -389,15 +394,7 @@ class PDFGenerator {
                 let label = "\(stat.pitchType.rawValue) - \(stat.pitchLocation.rawValue)"
                 y = drawStatRow(label, value: "\(stat.count) hit\(stat.count == 1 ? "" : "s")", at: y)
             }
-            y += 15
         }
-
-        // Spray Chart
-        y = drawSectionHeader("Spray Chart", at: y)
-        y = drawSprayChart(hits: hits, at: y)
-
-        // Legend
-        y = drawLegend(at: y)
 
         return y
     }
@@ -648,6 +645,19 @@ struct PlayerStatsSection: View {
     }
 
     var body: some View {
+        Section("Spray Chart") {
+            VStack(spacing: 12) {
+                HStack {
+                    Spacer()
+                    MiniSprayChart(hits: hits)
+                        .frame(width: 200, height: 200)
+                    Spacer()
+                }
+                SprayChartLegend()
+            }
+            .padding(.vertical)
+        }
+
         Section("Hit Types") {
             HStack {
                 Text("Total Hits")
@@ -685,16 +695,6 @@ struct PlayerStatsSection: View {
                     }
                 }
             }
-        }
-
-        Section("Spray Chart") {
-            HStack {
-                Spacer()
-                MiniSprayChart(hits: hits)
-                    .frame(width: 200, height: 200)
-                Spacer()
-            }
-            .padding(.vertical)
         }
     }
 
@@ -759,6 +759,21 @@ struct TeamOverviewSection: View {
             }
         }
 
+        if !relevantHits.isEmpty {
+            Section("Spray Chart") {
+                VStack(spacing: 12) {
+                    HStack {
+                        Spacer()
+                        MiniSprayChart(hits: relevantHits)
+                            .frame(width: 200, height: 200)
+                        Spacer()
+                    }
+                    SprayChartLegend()
+                }
+                .padding(.vertical)
+            }
+        }
+
         Section("Team Summary") {
             HStack {
                 Text("Total Hits")
@@ -786,6 +801,15 @@ struct MiniSprayChart: View {
                             .stroke(Color.green, lineWidth: 1)
                     )
 
+                // Base paths
+                BasePathsView()
+                    .stroke(Color.white, lineWidth: 1.5)
+                    .frame(width: geometry.size.width * 0.32, height: geometry.size.height * 0.32)
+                    .position(x: geometry.size.width / 2, y: geometry.size.height * 0.8)
+
+                // Bases
+                MiniBasesView(size: geometry.size)
+
                 // Hit dots
                 ForEach(hits) { hit in
                     Circle()
@@ -799,6 +823,78 @@ struct MiniSprayChart: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
+    }
+
+    func hitColor(for hitType: HitType) -> Color {
+        switch hitType {
+        case .flyBall: return .blue
+        case .lineDrive: return .red
+        case .popUp: return .purple
+        case .grounder: return .orange
+        }
+    }
+}
+
+// MARK: - Mini Bases View (for Results spray chart)
+
+struct MiniBasesView: View {
+    let size: CGSize
+
+    var body: some View {
+        let baseSize: CGFloat = 8
+        let diamondWidth = size.width * 0.32
+        let diamondHeight = size.height * 0.32
+        let centerX = size.width / 2
+        let centerY = size.height * 0.8
+
+        ZStack {
+            // Home plate
+            Rectangle()
+                .fill(Color.white)
+                .frame(width: baseSize, height: baseSize)
+                .rotationEffect(.degrees(45))
+                .position(x: centerX, y: centerY + diamondHeight / 2)
+
+            // First base
+            Rectangle()
+                .fill(Color.white)
+                .frame(width: baseSize, height: baseSize)
+                .rotationEffect(.degrees(45))
+                .position(x: centerX + diamondWidth / 2, y: centerY)
+
+            // Second base
+            Rectangle()
+                .fill(Color.white)
+                .frame(width: baseSize, height: baseSize)
+                .rotationEffect(.degrees(45))
+                .position(x: centerX, y: centerY - diamondHeight / 2)
+
+            // Third base
+            Rectangle()
+                .fill(Color.white)
+                .frame(width: baseSize, height: baseSize)
+                .rotationEffect(.degrees(45))
+                .position(x: centerX - diamondWidth / 2, y: centerY)
+        }
+    }
+}
+
+// MARK: - Spray Chart Legend
+
+struct SprayChartLegend: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ForEach(HitType.allCases, id: \.self) { hitType in
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(hitColor(for: hitType))
+                        .frame(width: 10, height: 10)
+                    Text(hitType.rawValue)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
     }
 
     func hitColor(for hitType: HitType) -> Color {
