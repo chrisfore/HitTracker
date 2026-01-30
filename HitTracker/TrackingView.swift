@@ -5,6 +5,7 @@ struct TrackingView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var selectedPlayer: Player?
     @State private var showingHitInput = false
+    @State private var showingAddTeam = false
     @State private var normalizedTapLocation: CGPoint = .zero  // Already normalized 0-1
     @State private var selectedPitchFilter: PitchStats?
     @State private var isLandscape = false
@@ -45,27 +46,40 @@ struct TrackingView: View {
                             // Left side: Team, Player, Pitch Stats
                             VStack(alignment: .leading, spacing: 12) {
                                 // Team Selector
-                                Menu {
-                                    ForEach(database.opponentTeams) { team in
-                                        Button {
-                                            database.selectTeam(team.id)
-                                            selectedPlayer = nil
-                                            selectedPitchFilter = nil
-                                        } label: {
-                                            HStack {
-                                                Text(team.name)
-                                                if team.id == database.selectedTeamId {
-                                                    Image(systemName: "checkmark")
+                                if database.opponentTeams.isEmpty {
+                                    Button {
+                                        showingAddTeam = true
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Text("Enter Team")
+                                                .font(.headline)
+                                            Image(systemName: "plus.circle")
+                                                .font(.caption)
+                                        }
+                                    }
+                                } else {
+                                    Menu {
+                                        ForEach(database.opponentTeams) { team in
+                                            Button {
+                                                database.selectTeam(team.id)
+                                                selectedPlayer = nil
+                                                selectedPitchFilter = nil
+                                            } label: {
+                                                HStack {
+                                                    Text(team.name)
+                                                    if team.id == database.selectedTeamId {
+                                                        Image(systemName: "checkmark")
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Text(teamSelectorText)
-                                            .font(.headline)
-                                        Image(systemName: "chevron.down")
-                                            .font(.caption)
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Text(teamSelectorText)
+                                                .font(.headline)
+                                            Image(systemName: "chevron.down")
+                                                .font(.caption)
+                                        }
                                     }
                                 }
 
@@ -177,28 +191,41 @@ struct TrackingView: View {
             .toolbar {
                 if !isLandscape {
                     ToolbarItem(placement: .principal) {
-                        // Team selector menu (only in portrait)
-                        Menu {
-                            ForEach(database.opponentTeams) { team in
-                                Button {
-                                    database.selectTeam(team.id)
-                                    selectedPlayer = nil
-                                    selectedPitchFilter = nil
-                                } label: {
-                                    HStack {
-                                        Text(team.name)
-                                        if team.id == database.selectedTeamId {
-                                            Image(systemName: "checkmark")
+                        // Team selector (only in portrait)
+                        if database.opponentTeams.isEmpty {
+                            Button {
+                                showingAddTeam = true
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text("Enter Team")
+                                        .font(.headline)
+                                    Image(systemName: "plus.circle")
+                                        .font(.caption)
+                                }
+                            }
+                        } else {
+                            Menu {
+                                ForEach(database.opponentTeams) { team in
+                                    Button {
+                                        database.selectTeam(team.id)
+                                        selectedPlayer = nil
+                                        selectedPitchFilter = nil
+                                    } label: {
+                                        HStack {
+                                            Text(team.name)
+                                            if team.id == database.selectedTeamId {
+                                                Image(systemName: "checkmark")
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(teamSelectorText)
-                                    .font(.headline)
-                                Image(systemName: "chevron.down")
-                                    .font(.caption)
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(teamSelectorText)
+                                        .font(.headline)
+                                    Image(systemName: "chevron.down")
+                                        .font(.caption)
+                                }
                             }
                         }
                     }
@@ -223,12 +250,97 @@ struct TrackingView: View {
                 )
                 .presentationDetents([.medium])
             }
+            .sheet(isPresented: $showingAddTeam) {
+                AddTeamSheet(onComplete: { teamName, players in
+                    let team = database.addTeam(name: teamName)
+                    database.selectTeam(team.id)
+                    for player in players {
+                        database.addPlayer(teamId: team.id, name: player.name, number: player.number)
+                    }
+                })
+            }
             .onChange(of: database.selectedTeamId) {
                 selectedPlayer = nil
                 selectedPitchFilter = nil
             }
         }
     }
+}
+
+// MARK: - Add Team Sheet
+
+struct AddTeamSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let onComplete: (String, [AddTeamPlayerInput]) -> Void
+
+    @State private var teamName = ""
+    @State private var players: [AddTeamPlayerInput] = [
+        AddTeamPlayerInput(name: "", number: "")
+    ]
+
+    var isValid: Bool {
+        !teamName.isEmpty && players.contains { !$0.number.isEmpty }
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Team Information") {
+                    TextField("Team Name", text: $teamName)
+                }
+
+                Section("Lineup") {
+                    ForEach($players) { $player in
+                        HStack {
+                            TextField("Number", text: $player.number)
+                                .keyboardType(.numberPad)
+                                .frame(width: 60)
+
+                            TextField("Name (Optional)", text: $player.name)
+                        }
+                    }
+                    .onDelete(perform: deletePlayer)
+
+                    Button {
+                        players.append(AddTeamPlayerInput(name: "", number: ""))
+                    } label: {
+                        Label("Add Player", systemImage: "plus.circle")
+                    }
+                }
+
+                Section {
+                    Button {
+                        onComplete(teamName, players.filter { !$0.number.isEmpty })
+                        dismiss()
+                    } label: {
+                        Text("Save Team")
+                            .frame(maxWidth: .infinity)
+                            .fontWeight(.semibold)
+                    }
+                    .disabled(!isValid)
+                }
+            }
+            .navigationTitle("Add Team")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private func deletePlayer(at offsets: IndexSet) {
+        players.remove(atOffsets: offsets)
+    }
+}
+
+struct AddTeamPlayerInput: Identifiable {
+    let id = UUID()
+    var name: String
+    var number: String
 }
 
 // MARK: - Pitch Stats Bar (Tappable for filtering)
@@ -440,7 +552,12 @@ struct SoftballFieldShape: Shape {
         var path = Path()
 
         let center = CGPoint(x: rect.midX, y: rect.maxY)
-        let radius = min(rect.width, rect.height)
+        // For a 90° arc (225° to 315°), the corners extend to 0.707 * radius horizontally
+        // To fit within width W, we need: radius * 0.707 * 2 <= W, so radius <= W / 1.414
+        // To fit within height H, we need: radius <= H
+        let maxRadiusForWidth = rect.width / 1.414
+        let maxRadiusForHeight = rect.height
+        let radius = min(maxRadiusForWidth, maxRadiusForHeight)
 
         path.move(to: center)
         path.addArc(center: center, radius: radius, startAngle: .degrees(225), endAngle: .degrees(315), clockwise: false)
@@ -455,7 +572,9 @@ struct InfieldShape: Shape {
         var path = Path()
 
         let center = CGPoint(x: rect.midX, y: rect.maxY)
-        let radius = min(rect.width, rect.height) * 0.8
+        let maxRadiusForWidth = rect.width / 1.414
+        let maxRadiusForHeight = rect.height
+        let radius = min(maxRadiusForWidth, maxRadiusForHeight) * 0.8
 
         path.move(to: center)
         path.addArc(center: center, radius: radius, startAngle: .degrees(225), endAngle: .degrees(315), clockwise: false)
