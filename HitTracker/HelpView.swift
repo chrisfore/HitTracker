@@ -7,30 +7,18 @@ struct HelpView: View {
 
                 // Overview Section
                 HelpSection(title: "Overview", icon: "info.circle") {
-                    Text("HitTracker helps you scout opponent teams by tracking where their batters hit the ball. Record hit locations, pitch information, and view spray charts to identify hitting patterns and position your defense strategically.")
+                    Text("HitTracker helps you track and analyze where batters hit the ball during softball games. Record hit locations, pitch information, and view spray charts to identify hitting patterns.")
                 }
 
-                // About Scouting Section
-                HelpSection(title: "About Scouting", icon: "binoculars") {
+                // Setting Up Teams
+                HelpSection(title: "Setting Up Teams", icon: "person.3") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("HitTracker is designed for **scouting opponent teams**.")
-                        Text("• Track where opponents hit against YOUR pitchers")
-                        Text("• Build spray charts for each opponent batter")
-                        Text("• Identify hitting patterns and tendencies")
-                        Text("• Use the data to position your defense")
-                        Text("\nYour team logo represents YOUR team - you're tracking hits of other teams playing AGAINST you.")
-                    }
-                }
-
-                // Setting Up Opponent Teams
-                HelpSection(title: "Setting Up Opponent Teams", icon: "person.3") {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("When you first open the app, you'll set up an opponent team to scout:")
-                        Text("1. Enter the **Opponent Team Name**")
+                        Text("When you first open the app, you'll set up a team:")
+                        Text("1. Enter the **Team Name**")
                         Text("2. Add players with their **Number** (name is optional)")
                         Text("3. Players appear in lineup order (you can reorder later)")
                         Text("4. Tap **Start Tracking** when ready")
-                        Text("\nYou can add more opponent teams later in Settings.")
+                        Text("\nYou can add more teams later in Settings.")
                     }
                 }
 
@@ -38,8 +26,8 @@ struct HelpView: View {
                 HelpSection(title: "Tracking Hits", icon: "figure.baseball") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("On the Track screen:")
-                        Text("1. **Select the opponent team** using the dropdown at the top")
-                        Text("2. **Select the batter** using the scrolling selector")
+                        Text("1. **Select the team** using the dropdown at the top")
+                        Text("2. **Select the player** using the player dropdown")
                         Text("3. **Tap on the field** where the ball was hit")
                         Text("4. Choose the **hit type**:")
                         Text("   • Fly Ball - hit high in the air")
@@ -56,7 +44,7 @@ struct HelpView: View {
                 // Understanding the Display
                 HelpSection(title: "Understanding the Display", icon: "eye") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("When a batter is selected, you'll see:")
+                        Text("When a player is selected, you'll see:")
                         Text("• **Pitch stats bar** - tap to filter hits by pitch type/location")
                         Text("• **Colored dots** on the field showing previous hit locations:")
                         Text("   • Blue = Fly Ball")
@@ -72,10 +60,10 @@ struct HelpView: View {
                 HelpSection(title: "Viewing Results", icon: "chart.bar") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("The Results tab shows statistics:")
-                        Text("• **Team filter** - select which opponent team to view")
+                        Text("• **Team filter** - select which team to view")
                         Text("• **Player filter** - view individual player stats")
                         Text("• **Hit type breakdown** - counts by type")
-                        Text("• **Pitch patterns** - what pitches they hit well")
+                        Text("• **Pitch patterns** - what pitches were hit")
                         Text("• **Mini spray chart** - visual hit distribution")
                     }
                 }
@@ -84,27 +72,27 @@ struct HelpView: View {
                 HelpSection(title: "Managing Teams", icon: "gear") {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("In Settings, you can:")
-                        Text("• **Switch opponent teams** - select from the team picker")
-                        Text("• **Create new teams** - add more opponent teams to scout")
-                        Text("• **Delete teams** - remove a team and all its data")
+                        Text("• **Switch teams** - select from the team picker")
+                        Text("• **Create new teams** - add more teams to track")
                         Text("• **Change team name** - tap to edit")
+                        Text("• **Delete teams** - remove a team and all its data")
                         Text("• **Add players** - tap Add Player (only number required)")
                         Text("• **Reorder lineup** - drag players using the handle")
                         Text("• **Remove players** - swipe left to delete")
                         Text("• **Clear player hits** - remove one player's data")
                         Text("• **Clear all hits** - reset all hit data")
-                        Text("• **Add your team logo** - appears in exports")
+                        Text("• **Add your team logo** - customize the app")
                     }
                 }
 
                 // Tips
                 HelpSection(title: "Tips", icon: "lightbulb") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("• Track pitch info to see what pitches each batter handles best")
+                        Text("• Track pitch info to see patterns for each batter")
                         Text("• Tap pitch stats to highlight matching hits on the field")
-                        Text("• Review spray charts before games to scout tendencies")
+                        Text("• Review spray charts to identify hitting tendencies")
                         Text("• Use Dark Mode for visibility at evening games")
-                        Text("• The lineup order matches their batting order - reorder as needed")
+                        Text("• The lineup order matches the batting order - reorder as needed")
                     }
                 }
 

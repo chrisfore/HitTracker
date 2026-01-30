@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TrackingView: View {
     @EnvironmentObject var database: DatabaseManager
-    @State private var selectedPlayerIndex = 0
+    @State private var selectedPlayer: Player?
     @State private var showingHitInput = false
     @State private var tapLocation: CGPoint = .zero
     @State private var fieldSize: CGSize = .zero
@@ -11,11 +11,6 @@ struct TrackingView: View {
     var sortedPlayers: [Player] {
         guard let teamId = database.selectedTeamId else { return [] }
         return database.getPlayers(for: teamId)
-    }
-
-    var selectedPlayer: Player? {
-        guard !sortedPlayers.isEmpty, selectedPlayerIndex < sortedPlayers.count else { return nil }
-        return sortedPlayers[selectedPlayerIndex]
     }
 
     var playerHits: [Hit] {
@@ -31,12 +26,16 @@ struct TrackingView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Batter Selector
+                // Player Selector Dropdown
                 if !sortedPlayers.isEmpty {
-                    BatterSelector(
-                        players: sortedPlayers,
-                        selectedIndex: $selectedPlayerIndex
-                    )
+                    Picker("Select Player", selection: $selectedPlayer) {
+                        Text("Select Player").tag(nil as Player?)
+                        ForEach(sortedPlayers) { player in
+                            Text(player.displayName).tag(player as Player?)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .padding(.horizontal)
                     .padding(.vertical, 8)
                 }
 
@@ -47,7 +46,7 @@ struct TrackingView: View {
                         .padding(.bottom, 8)
                 }
 
-                // Softball Field (smaller to fit screen)
+                // Softball Field (resizes to fit available space)
                 GeometryReader { geometry in
                     SoftballFieldView(
                         hits: playerHits,
@@ -60,14 +59,11 @@ struct TrackingView: View {
                     )
                 }
                 .padding()
-                .frame(maxHeight: 320)
 
                 // Hit Type Legend
                 HitTypeLegend()
                     .padding(.horizontal)
                     .padding(.bottom, 8)
-
-                Spacer()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -77,7 +73,7 @@ struct TrackingView: View {
                         ForEach(database.opponentTeams) { team in
                             Button {
                                 database.selectTeam(team.id)
-                                selectedPlayerIndex = 0
+                                selectedPlayer = nil
                                 selectedPitchFilter = nil
                             } label: {
                                 HStack {
@@ -120,60 +116,10 @@ struct TrackingView: View {
                 .presentationDetents([.medium])
             }
             .onChange(of: database.selectedTeamId) {
-                selectedPlayerIndex = 0
+                selectedPlayer = nil
                 selectedPitchFilter = nil
             }
         }
-    }
-}
-
-// MARK: - Batter Selector
-
-struct BatterSelector: View {
-    let players: [Player]
-    @Binding var selectedIndex: Int
-
-    var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(Array(players.enumerated()), id: \.element.id) { index, player in
-                        BatterPill(
-                            player: player,
-                            isSelected: index == selectedIndex
-                        )
-                        .id(index)
-                        .onTapGesture {
-                            withAnimation {
-                                selectedIndex = index
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .onChange(of: selectedIndex) {
-                withAnimation {
-                    proxy.scrollTo(selectedIndex, anchor: .center)
-                }
-            }
-        }
-    }
-}
-
-struct BatterPill: View {
-    let player: Player
-    let isSelected: Bool
-
-    var body: some View {
-        Text(player.displayName)
-            .font(.subheadline)
-            .lineLimit(1)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(isSelected ? Color.blue : Color(.systemGray5))
-            .foregroundColor(isSelected ? .white : .primary)
-            .cornerRadius(20)
     }
 }
 

@@ -48,7 +48,7 @@ struct SettingsView: View {
                             showingEditTeamName = true
                         } label: {
                             HStack {
-                                Text("Team Name")
+                                Text("Change Team Name")
                                     .foregroundColor(.primary)
                                 Spacer()
                                 Text(team.name)
@@ -57,12 +57,6 @@ struct SettingsView: View {
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
-                        }
-
-                        Button(role: .destructive) {
-                            showingDeleteTeam = true
-                        } label: {
-                            Label("Delete This Team", systemImage: "trash")
                         }
                     }
                 }
@@ -119,6 +113,12 @@ struct SettingsView: View {
                                         .foregroundColor(.secondary)
                                 }
                             }
+                        }
+
+                        Button(role: .destructive) {
+                            showingDeleteTeam = true
+                        } label: {
+                            Label("Delete Team: \(team.name)", systemImage: "trash")
                         }
                     }
 
