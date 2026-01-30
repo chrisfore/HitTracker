@@ -24,42 +24,50 @@ struct TrackingView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Player Selector Dropdown
-                if !sortedPlayers.isEmpty {
-                    Picker("Select Player", selection: $selectedPlayer) {
-                        Text("Select Player").tag(nil as Player?)
-                        ForEach(sortedPlayers) { player in
-                            Text(player.displayName).tag(player as Player?)
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    // Player Selector Dropdown
+                    if !sortedPlayers.isEmpty {
+                        Picker("Select Player", selection: $selectedPlayer) {
+                            Text("Select Player").tag(nil as Player?)
+                            ForEach(sortedPlayers) { player in
+                                Text(player.displayName).tag(player as Player?)
+                            }
                         }
+                        .pickerStyle(.menu)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
                     }
-                    .pickerStyle(.menu)
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                }
 
-                // Pitch Stats for Selected Batter (tappable for filtering)
-                if !pitchStats.isEmpty {
-                    PitchStatsBar(stats: pitchStats, selectedFilter: $selectedPitchFilter)
+                    // Pitch Stats for Selected Batter (tappable for filtering)
+                    if !pitchStats.isEmpty {
+                        PitchStatsBar(stats: pitchStats, selectedFilter: $selectedPitchFilter)
+                            .padding(.horizontal)
+                    }
+
+                    // Spacer between pitch stats and field
+                    Spacer()
+                        .frame(maxHeight: 20)
+
+                    // Softball Field (resizes to fit available space)
+                    SoftballFieldView(
+                        hits: playerHits,
+                        pitchFilter: selectedPitchFilter,
+                        onTap: { normalizedLocation in
+                            normalizedTapLocation = normalizedLocation
+                            showingHitInput = true
+                        }
+                    )
+                    .padding(.horizontal)
+
+                    Spacer()
+                        .frame(maxHeight: 16)
+
+                    // Hit Type Legend
+                    HitTypeLegend()
                         .padding(.horizontal)
                         .padding(.bottom, 8)
                 }
-
-                // Softball Field (resizes to fit available space)
-                SoftballFieldView(
-                    hits: playerHits,
-                    pitchFilter: selectedPitchFilter,
-                    onTap: { normalizedLocation in
-                        normalizedTapLocation = normalizedLocation
-                        showingHitInput = true
-                    }
-                )
-                .padding()
-
-                // Hit Type Legend
-                HitTypeLegend()
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
