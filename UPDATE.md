@@ -1,12 +1,19 @@
 # HitTracker Development Status
 
-**Last Updated:** 2026-01-30
-**Current Build:** 1.27
+**Last Updated:** 2026-02-02
+**Current Build:** 1.27 (iOS) / 1.0 (Android)
 
 ## Project Overview
-HitTracker is an iOS SwiftUI app for tracking softball hits against opponent teams. Users scout multiple opponents, each with their own player roster.
+HitTracker is an app for tracking softball hits against opponent teams. Users scout multiple opponents, each with their own player roster. Available for both iOS (SwiftUI) and Android (Kotlin/Jetpack Compose).
 
 ## Recent Changes (This Session)
+
+### Android 1.0 - Initial Android Port
+- **Native Android app**: Full port to Kotlin + Jetpack Compose
+- **Room Database**: Local persistence using Room (equivalent to iOS Core Data)
+- **Material 3 UI**: Modern Android design system
+- **Feature parity**: Track, Results, and Settings screens ported
+- **Branch**: `android` branch on GitHub
 
 ### Build 1.27 - App Icon
 - **Custom app icon**: Added HT Logo as the app icon
@@ -134,3 +141,40 @@ xcrun simctl launch "iPhone 17 Pro" com.cfore.hittracker
 - **Target**: iOS 17.0+
 - **Bundle ID**: `com.cfore.hittracker`
 - **Test devices**: iPhone 17 Pro, iPad simulators
+
+## Android Version
+
+The Android port lives on the `android` branch and in the `HitTracker-Android` folder on Desktop.
+
+### Tech Stack
+- **Kotlin** + **Jetpack Compose** for UI
+- **Room Database** for persistence
+- **ViewModel + StateFlow** for state management
+- **Material 3** design system
+
+### Android Key Files
+
+| File | Purpose |
+|------|---------|
+| `TrackingScreen.kt` | Main tracking screen, field display, hit input |
+| `ResultsScreen.kt` | Stats display, spray charts |
+| `SettingsScreen.kt` | Team/player management |
+| `MainScreen.kt` | Tab navigation, setup flow |
+| `TeamSetupScreen.kt` | Initial app setup |
+| `HitTrackerRepository.kt` | Data persistence |
+| `Models.kt` | Data structures (Room entities) |
+| `HitTrackerViewModel.kt` | State management |
+
+### Build Android
+
+```bash
+# Build
+cd HitTracker-Android
+./gradlew assembleDebug
+
+# Or open in Android Studio and run
+```
+
+- **Min SDK**: 26 (Android 8.0)
+- **Target SDK**: 34
+- **Package**: `com.cfore.hittracker`
