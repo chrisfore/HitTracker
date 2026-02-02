@@ -14,6 +14,8 @@ HitTracker is an app for tracking softball hits against opponent teams. Users sc
 - **Material 3 UI**: Modern Android design system
 - **Feature parity**: Track, Results, and Settings screens ported
 - **Branch**: `android` branch on GitHub
+- **Build fixes**: Updated AGP 8.2.2, Kotlin 1.9.21, KSP 1.9.21-1.0.15
+- **Launcher icon**: Adaptive icon with HT logo
 
 ### Build 1.27 - App Icon
 - **Custom app icon**: Added HT Logo as the app icon
@@ -147,10 +149,11 @@ xcrun simctl launch "iPhone 17 Pro" com.cfore.hittracker
 The Android port lives on the `android` branch and in the `HitTracker-Android` folder on Desktop.
 
 ### Tech Stack
-- **Kotlin** + **Jetpack Compose** for UI
+- **Kotlin 1.9.21** + **Jetpack Compose** for UI
 - **Room Database** for persistence
 - **ViewModel + StateFlow** for state management
 - **Material 3** design system
+- **Android Gradle Plugin**: 8.2.2
 
 ### Android Key Files
 
