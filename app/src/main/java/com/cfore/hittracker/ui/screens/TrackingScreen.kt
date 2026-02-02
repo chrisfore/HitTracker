@@ -15,7 +15,7 @@ import com.cfore.hittracker.ui.components.HitLegend
 import com.cfore.hittracker.ui.components.SoftballField
 import com.cfore.hittracker.viewmodel.HitTrackerViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TrackingScreen(viewModel: HitTrackerViewModel) {
     val teams by viewModel.teams.collectAsState()
@@ -108,7 +108,7 @@ fun TrackingScreen(viewModel: HitTrackerViewModel) {
                                     { Icon(Icons.Default.Check, contentDescription = null) }
                                 } else null
                             )
-                            HorizontalDivider()
+                            Divider()
                             players.forEach { player ->
                                 DropdownMenuItem(
                                     text = { Text(player.displayName) },
@@ -175,6 +175,7 @@ fun TrackingScreen(viewModel: HitTrackerViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun HitInputDialog(
     onDismiss: () -> Unit,

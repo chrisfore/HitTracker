@@ -109,7 +109,7 @@ fun SettingsScreen(viewModel: HitTrackerViewModel) {
             // Players Section
             if (selectedTeam != null) {
                 item {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
                     Text(
                         text = "Players - ${selectedTeam?.name}",
                         style = MaterialTheme.typography.titleMedium
@@ -157,7 +157,7 @@ fun SettingsScreen(viewModel: HitTrackerViewModel) {
 
             // Data Management
             item {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
                     text = "Data Management",
                     style = MaterialTheme.typography.titleMedium
@@ -180,7 +180,7 @@ fun SettingsScreen(viewModel: HitTrackerViewModel) {
 
             // App Info
             item {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
                     text = "HitTracker for Android",
                     style = MaterialTheme.typography.bodySmall,

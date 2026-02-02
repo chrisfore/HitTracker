@@ -97,7 +97,7 @@ fun ResultsScreen(viewModel: HitTrackerViewModel) {
                                     showTeamDropdown = false
                                 }
                             )
-                            HorizontalDivider()
+                            Divider()
                             teams.forEach { team ->
                                 DropdownMenuItem(
                                     text = { Text(team.name) },
@@ -131,7 +131,7 @@ fun ResultsScreen(viewModel: HitTrackerViewModel) {
                                     showPlayerDropdown = false
                                 }
                             )
-                            HorizontalDivider()
+                            Divider()
                             filteredPlayers.forEach { player ->
                                 DropdownMenuItem(
                                     text = { Text(player.displayName) },
