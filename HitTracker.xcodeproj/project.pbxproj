@@ -23,6 +23,7 @@
 
 /* Begin PBXFileReference section */
 		526A1A902F2D5ED4003A78E9 /* AppIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconView.swift; sourceTree = "<group>"; };
+		526A1A922F2D6000003A78E9 /* HitTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HitTracker.entitlements; sourceTree = "<group>"; };
 		AAA00009 /* HitTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HitTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA00010 /* HitTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTrackerApp.swift; sourceTree = "<group>"; };
 		AAA00011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -71,6 +72,7 @@
 				AAA0001A /* HelpView.swift */,
 				AAA00017 /* Assets.xcassets */,
 				526A1A902F2D5ED4003A78E9 /* AppIconView.swift */,
+				526A1A922F2D6000003A78E9 /* HitTracker.entitlements */,
 			);
 			path = HitTracker;
 			sourceTree = "<group>";
@@ -297,6 +299,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HitTracker/HitTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -326,6 +329,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HitTracker/HitTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;

@@ -13,38 +13,127 @@ class DatabaseManager: ObservableObject {
     private let playersKey = "savedPlayers"
     private let hitsKey = "savedHits"
     private let selectedTeamKey = "selectedTeamId"
+    private let logoKey = "teamLogoData"
 
     // Legacy keys for migration
     private let legacyTeamKey = "savedTeam"
 
+    // iCloud Key-Value Store
+    private let iCloudStore = NSUbiquitousKeyValueStore.default
+
     private init() {
+        setupiCloudSync()
         loadData()
         migrateFromLegacyData()
+        migrateLocalDataToiCloud()
     }
 
-    // MARK: - Data Persistence
+    // MARK: - iCloud Sync Setup
+
+    private func setupiCloudSync() {
+        // Listen for external changes from iCloud
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(iCloudDataDidChange),
+            name: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+            object: iCloudStore
+        )
+
+        // Synchronize with iCloud
+        iCloudStore.synchronize()
+    }
+
+    @objc private func iCloudDataDidChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let reasonKey = userInfo[NSUbiquitousKeyValueStoreChangeReasonKey] as? Int else {
+            return
+        }
+
+        // Handle different change reasons
+        switch reasonKey {
+        case NSUbiquitousKeyValueStoreServerChange,
+             NSUbiquitousKeyValueStoreInitialSyncChange:
+            // Data changed from another device or initial sync
+            DispatchQueue.main.async {
+                self.loadData()
+            }
+        case NSUbiquitousKeyValueStoreQuotaViolationChange:
+            // Over quota - fall back to local storage only
+            print("iCloud storage quota exceeded")
+        case NSUbiquitousKeyValueStoreAccountChange:
+            // Account changed - reload data
+            DispatchQueue.main.async {
+                self.loadData()
+            }
+        default:
+            break
+        }
+    }
+
+    // MARK: - Data Persistence (iCloud with local fallback)
+
+    private func getData(forKey key: String) -> Data? {
+        // Try iCloud first
+        if let data = iCloudStore.data(forKey: key) {
+            return data
+        }
+        // Fall back to local UserDefaults
+        return UserDefaults.standard.data(forKey: key)
+    }
+
+    private func setData(_ data: Data?, forKey key: String) {
+        // Save to both iCloud and local
+        if let data = data {
+            iCloudStore.set(data, forKey: key)
+            UserDefaults.standard.set(data, forKey: key)
+        } else {
+            iCloudStore.removeObject(forKey: key)
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        iCloudStore.synchronize()
+    }
+
+    private func getString(forKey key: String) -> String? {
+        // Try iCloud first
+        if let string = iCloudStore.string(forKey: key) {
+            return string
+        }
+        // Fall back to local UserDefaults
+        return UserDefaults.standard.string(forKey: key)
+    }
+
+    private func setString(_ string: String?, forKey key: String) {
+        if let string = string {
+            iCloudStore.set(string, forKey: key)
+            UserDefaults.standard.set(string, forKey: key)
+        } else {
+            iCloudStore.removeObject(forKey: key)
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        iCloudStore.synchronize()
+    }
 
     func loadData() {
         // Load teams
-        if let teamsData = UserDefaults.standard.data(forKey: teamsKey),
+        if let teamsData = getData(forKey: teamsKey),
            let savedTeams = try? JSONDecoder().decode([Team].self, from: teamsData) {
             opponentTeams = savedTeams
         }
 
         // Load players
-        if let playersData = UserDefaults.standard.data(forKey: playersKey),
+        if let playersData = getData(forKey: playersKey),
            let savedPlayers = try? JSONDecoder().decode([Player].self, from: playersData) {
             players = savedPlayers
         }
 
         // Load hits
-        if let hitsData = UserDefaults.standard.data(forKey: hitsKey),
+        if let hitsData = getData(forKey: hitsKey),
            let savedHits = try? JSONDecoder().decode([Hit].self, from: hitsData) {
             hits = savedHits
         }
 
         // Load selected team
-        if let selectedTeamString = UserDefaults.standard.string(forKey: selectedTeamKey),
+        if let selectedTeamString = getString(forKey: selectedTeamKey),
            let teamId = UUID(uuidString: selectedTeamString) {
             selectedTeamId = teamId
         } else if let firstTeam = opponentTeams.first {
@@ -54,24 +143,52 @@ class DatabaseManager: ObservableObject {
 
     private func saveTeams() {
         if let encoded = try? JSONEncoder().encode(opponentTeams) {
-            UserDefaults.standard.set(encoded, forKey: teamsKey)
+            setData(encoded, forKey: teamsKey)
         }
     }
 
     private func savePlayers() {
         if let encoded = try? JSONEncoder().encode(players) {
-            UserDefaults.standard.set(encoded, forKey: playersKey)
+            setData(encoded, forKey: playersKey)
         }
     }
 
     private func saveHits() {
         if let encoded = try? JSONEncoder().encode(hits) {
-            UserDefaults.standard.set(encoded, forKey: hitsKey)
+            setData(encoded, forKey: hitsKey)
         }
     }
 
     private func saveSelectedTeam() {
-        UserDefaults.standard.set(selectedTeamId?.uuidString, forKey: selectedTeamKey)
+        setString(selectedTeamId?.uuidString, forKey: selectedTeamKey)
+    }
+
+    // Migrate existing local data to iCloud on first run
+    private func migrateLocalDataToiCloud() {
+        // Check if we have local data but no iCloud data
+        let hasLocalTeams = UserDefaults.standard.data(forKey: teamsKey) != nil
+        let hasiCloudTeams = iCloudStore.data(forKey: teamsKey) != nil
+
+        if hasLocalTeams && !hasiCloudTeams {
+            // Push local data to iCloud
+            if let teamsData = UserDefaults.standard.data(forKey: teamsKey) {
+                iCloudStore.set(teamsData, forKey: teamsKey)
+            }
+            if let playersData = UserDefaults.standard.data(forKey: playersKey) {
+                iCloudStore.set(playersData, forKey: playersKey)
+            }
+            if let hitsData = UserDefaults.standard.data(forKey: hitsKey) {
+                iCloudStore.set(hitsData, forKey: hitsKey)
+            }
+            if let selectedTeam = UserDefaults.standard.string(forKey: selectedTeamKey) {
+                iCloudStore.set(selectedTeam, forKey: selectedTeamKey)
+            }
+            // Migrate logo if exists
+            if let logoImage = loadLogoFromLocal() {
+                saveLogo(logoImage)
+            }
+            iCloudStore.synchronize()
+        }
     }
 
     // MARK: - Team Operations
@@ -239,18 +356,56 @@ class DatabaseManager: ObservableObject {
         return HitType.allCases.map { ($0, stats[$0] ?? 0) }
     }
 
-    // MARK: - Team Logo (for user's team)
+    // MARK: - Team Logo (synced via iCloud)
 
     func saveLogo(_ image: UIImage) {
+        // Save to local Documents directory
         guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
         let logoURL = documentsURL.appendingPathComponent("team_logo.png")
 
         if let pngData = image.pngData() {
             try? pngData.write(to: logoURL)
+
+            // Also save to iCloud key-value store (compressed for size limits)
+            // Resize image if needed to stay within iCloud limits
+            let resizedImage = resizeImageForCloud(image, maxSize: 200)
+            if let compressedData = resizedImage.jpegData(compressionQuality: 0.7) {
+                iCloudStore.set(compressedData, forKey: logoKey)
+                iCloudStore.synchronize()
+            }
+        }
+    }
+
+    private func resizeImageForCloud(_ image: UIImage, maxSize: CGFloat) -> UIImage {
+        let size = image.size
+        let ratio = min(maxSize / size.width, maxSize / size.height)
+        if ratio >= 1.0 { return image }
+
+        let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
         }
     }
 
     func loadLogo() -> UIImage? {
+        // Try local first (higher quality)
+        if let localLogo = loadLogoFromLocal() {
+            return localLogo
+        }
+
+        // Fall back to iCloud (lower quality but synced)
+        if let cloudData = iCloudStore.data(forKey: logoKey),
+           let cloudImage = UIImage(data: cloudData) {
+            // Save to local for future use
+            saveLogo(cloudImage)
+            return cloudImage
+        }
+
+        return nil
+    }
+
+    private func loadLogoFromLocal() -> UIImage? {
         guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
         let logoURL = documentsURL.appendingPathComponent("team_logo.png")
 
@@ -261,9 +416,14 @@ class DatabaseManager: ObservableObject {
     }
 
     func removeLogo() {
+        // Remove from local
         guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
         let logoURL = documentsURL.appendingPathComponent("team_logo.png")
         try? FileManager.default.removeItem(at: logoURL)
+
+        // Remove from iCloud
+        iCloudStore.removeObject(forKey: logoKey)
+        iCloudStore.synchronize()
     }
 
     // MARK: - Setup Check
