@@ -1,12 +1,19 @@
 # HitTracker Development Status
 
-**Last Updated:** 2026-02-02
-**Current Build:** 1.27 (iOS) / 1.0 (Android)
+**Last Updated:** 2026-02-05
+**Current Build:** 1.28 (iOS) / 1.0 (Android)
 
 ## Project Overview
 HitTracker is an app for tracking softball hits against opponent teams. Users scout multiple opponents, each with their own player roster. Available for both iOS (SwiftUI) and Android (Kotlin/Jetpack Compose).
 
 ## Recent Changes (This Session)
+
+### Build 1.28 - iCloud Sync
+- **Cross-device sync**: Data now syncs across Apple devices via iCloud
+- **NSUbiquitousKeyValueStore**: Teams, players, hits, and logo sync automatically
+- **Local fallback**: Data saved locally if iCloud unavailable
+- **Migration**: Existing local data migrated to iCloud on upgrade
+- **Real-time updates**: App refreshes when data changes from another device
 
 ### Android 1.0 - Initial Android Port
 - **Native Android app**: Full port to Kotlin + Jetpack Compose
@@ -82,9 +89,9 @@ HitTracker is an app for tracking softball hits against opponent teams. Users sc
 | `SettingsView.swift` | Team/player management, lineup editing |
 | `ContentView.swift` | Tab navigation, setup flow |
 | `TeamSetupView.swift` | Initial app setup |
-| `DatabaseManager.swift` | Data persistence |
+| `DatabaseManager.swift` | Data persistence, iCloud sync |
 | `Models.swift` | Data structures |
-| `AppVersion.swift` | Version tracking (1.27) |
+| `AppVersion.swift` | Version tracking (1.28) |
 
 ## Features
 
@@ -125,6 +132,7 @@ HitTracker is an app for tracking softball hits against opponent teams. Users sc
 ### Key Patterns
 - `@EnvironmentObject var database: DatabaseManager`
 - `@AppStorage` for persisted settings
+- `NSUbiquitousKeyValueStore` for iCloud sync
 - `.onChange` handlers for state synchronization
 - GeometryReader for responsive layouts
 - Background thread PDF generation
