@@ -6,13 +6,13 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 ## App Details
 - **App Name:** Hit Track Pro (App Store display name)
 - **Bundle ID:** `com.cfore.hittracker`
-- **Current Version:** 1.0 (fixed) - Build 2
+- **Current Version:** 1.0 (fixed) - Build 3
 - **Deployment Target:** iOS 17.0
 - **Supported Devices:** iPhone and iPad (Universal App)
 - **Swift Version:** 5.0
 - **Development Team:** Z7AM7M3YT2 (CROSSFIRE-FORE INC.)
 - **Repository:** https://github.com/chrisfore/HitTracker.git (public - docs only)
-- **App Store Status:** Ready for submission - Build 1
+- **App Store Status:** Ready for submission - Build 3
 
 ### Versioning Strategy
 - **Marketing Version:** 1.0 (stays fixed for all updates)
@@ -31,6 +31,13 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 4. **PDF Export** - Professional reports with team logo and date filtering
 5. **iCloud Sync** - Automatic sync across all Apple devices
 6. **Dark Mode** - Support for light and dark themes
+7. **Adjustable Text Size** - Control text size app-wide from Settings
+
+## Recent Changes (Build 3)
+- **Improved iPad UI:** Redesigned hit input sheet with FlowLayout for better button wrapping
+- **Larger Spray Charts:** Doubled spray chart size from 200x200 to 400x400 for better readability
+- **Text Size Controls:** Added text size picker in Settings > Appearance (System/Small/Medium/Large/Extra Large)
+- **Better Layout:** All hit type, pitch type, and pitch location options now visible without scrolling
 
 ## Architecture
 
