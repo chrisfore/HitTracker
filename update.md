@@ -1,13 +1,14 @@
 # Hit Track Pro - Claude Context Document
 
 ## Overview
-Hit Track Pro is a SwiftUI iOS app for tracking softball/baseball hits against opponent teams. Coaches scout multiple opponents, each with their own player roster.
+Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits against opponent teams. Coaches scout multiple opponents, each with their own player roster. Runs natively on iPhone and iPad with full feature parity and cross-device data sync.
 
 ## App Details
 - **App Name:** Hit Track Pro (App Store display name)
 - **Bundle ID:** `com.cfore.hittracker`
-- **Current Version:** 1.0 (fixed) - Build 1
+- **Current Version:** 1.0 (fixed) - Build 2
 - **Deployment Target:** iOS 17.0
+- **Supported Devices:** iPhone and iPad (Universal App)
 - **Swift Version:** 5.0
 - **Development Team:** Z7AM7M3YT2 (CROSSFIRE-FORE INC.)
 - **Repository:** https://github.com/chrisfore/HitTracker.git (public - docs only)
