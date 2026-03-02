@@ -35,3 +35,22 @@ Carthage/Build/
 # Temporary files
 *.swp
 *~
+
+# Claude Code
+.claude/
+
+# Credentials and sensitive files
+*.env
+credentials*
+secrets*
+*.php
+
+# Development documents
+TODO.md
+notes.md
+ht notes.docx
+
+# Source Code Protection (keep local only)
+HitTracker/
+HitTracker.xcodeproj/
+build/
