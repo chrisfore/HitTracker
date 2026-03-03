@@ -12,6 +12,7 @@ Hit Track Pro is a comprehensive hit tracking application designed for softball 
 - 👥 **Multiple Teams** - Track unlimited opponent teams with individual rosters
 - 📊 **Detailed Analytics** - Spray charts, hit type breakdown, pitch analysis
 - 📤 **PDF Export** - Professional scouting reports with team logo
+- 🤝 **Data Sharing** - Share scouting data with other coaches via .hitdata files
 - ☁️ **iCloud Sync** - Automatic sync across iPhone and iPad
 - 📱 **Universal App** - Native support for both iPhone and iPad
 - 🎨 **Customization** - Adjustable text size, dark mode support
@@ -20,8 +21,8 @@ Hit Track Pro is a comprehensive hit tracking application designed for softball 
 ## Current Version
 
 - **Version:** 1.0
-- **Build:** 3
-- **Status:** Ready for App Store submission
+- **Build:** 4
+- **Status:** Build 4 - Data sharing feature
 - **Deployment Target:** iOS 17.0+
 
 ## Links

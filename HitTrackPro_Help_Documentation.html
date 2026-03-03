@@ -79,18 +79,16 @@
             <li><strong>Tap on the field</strong> where the ball was hit</li>
             <li><strong>Choose the hit type:</strong>
                 <ul>
-                    <li>Single - safe on first base</li>
-                    <li>Double - safe on second base</li>
-                    <li>Triple - safe on third base</li>
-                    <li>HR - home run</li>
-                    <li>Groundout - out on ground ball</li>
-                    <li>Flyout - out on fly ball</li>
-                    <li>Error - reached base on error</li>
+                    <li>Fly Ball - hit high in the air</li>
+                    <li>Line Drive - hit hard and flat</li>
+                    <li>Pop Up - hit high but not far</li>
+                    <li>Grounder - hit on the ground</li>
                 </ul>
             </li>
             <li><strong>Optionally add pitch information:</strong>
                 <ul>
-                    <li><strong>Pitch Location:</strong> Inside, Outside, Up, Down, Middle</li>
+                    <li><strong>Pitch Type:</strong> Fastball, Change Up, Curve, Rise, Drop</li>
+                    <li><strong>Pitch Location:</strong> High, Low, Inside, Outside, Middle</li>
                 </ul>
             </li>
             <li>Tap <strong>Save</strong> to record the hit</li>
@@ -104,16 +102,15 @@
             <li><strong>Spray Chart</strong> - visual field display showing all hit locations</li>
             <li><strong>Colored dots</strong> on the field showing previous hit locations:
                 <ul>
-                    <li>Green = Single</li>
-                    <li>Blue = Double</li>
-                    <li>Yellow = Triple</li>
-                    <li>Red = Home Run</li>
-                    <li>Gray = Outs</li>
-                    <li>Orange = Error</li>
+                    <li>Blue = Fly Ball</li>
+                    <li>Red = Line Drive</li>
+                    <li>Purple = Pop Up</li>
+                    <li>Orange = Grounder</li>
+                    <li>Black = Matches selected pitch filter</li>
                 </ul>
             </li>
-            <li><strong>Pitch stats bar</strong> - tap to filter hits by pitch location</li>
-            <li><strong>Legend</strong> showing hit type colors</li>
+            <li><strong>Pitch stats bar</strong> - tap to filter hits by pitch type/location</li>
+            <li><strong>Legend</strong> at the bottom showing color meanings</li>
         </ul>
     </div>
 
@@ -125,8 +122,8 @@
             <li><strong>Player filter</strong> - view individual player stats or team overview</li>
             <li><strong>Date filtering</strong> - filter stats by date range</li>
             <li><strong>Spray chart</strong> - visual hit distribution</li>
-            <li><strong>Hit type breakdown</strong> - counts by type (singles, doubles, etc.)</li>
-            <li><strong>Pitch patterns</strong> - where hits occurred (inside, outside, etc.)</li>
+            <li><strong>Hit type breakdown</strong> - counts by type</li>
+            <li><strong>Pitch patterns</strong> - what pitches were hit and where</li>
             <li><strong>PDF Export</strong> - share professional scouting reports</li>
         </ul>
     </div>
@@ -173,6 +170,24 @@
         </ul>
     </div>
 
+    <div class="section">
+        <h2>🤝 Sharing & Importing Data</h2>
+        <p>Share scouting data with other coaches who use Hit Track Pro:</p>
+        <ul>
+            <li><strong>Share Player Data</strong> - Export a single player's hit data</li>
+            <li><strong>Share Team Data</strong> - Export a team with all players and hits</li>
+            <li><strong>Share All Data</strong> - Export everything in the app</li>
+        </ul>
+        <p>Shared data is saved as a <code>.hitdata</code> file that can be sent via AirDrop, Messages, email, or any sharing method.</p>
+        <p><strong>To import data from another coach:</strong></p>
+        <ol>
+            <li>Tap the shared <code>.hitdata</code> file — it opens directly in Hit Track Pro</li>
+            <li>Or tap <strong>Import Shared Data</strong> in Settings to browse for the file</li>
+            <li>The data is added as new entries alongside your existing data</li>
+        </ol>
+        <p>Imported teams and players are created as new entries, so there are no conflicts with your existing data. The app also supports importing <code>.json</code> files.</p>
+    </div>
+
     <div class="tip">
         <h2>💡 Tips & Best Practices</h2>
         <ul>
@@ -199,7 +214,7 @@
     <hr style="margin: 40px 0; border: none; border-top: 1px solid #ccc;">
 
     <p style="text-align: center; color: #666;">
-        <strong>Hit Track Pro</strong> v1.0<br>
+        <strong>Hit Track Pro</strong> v1.0 (Build 4)<br>
         © 2026 CROSSFIRE-FORE INC. All Rights Reserved
     </p>
 </body>

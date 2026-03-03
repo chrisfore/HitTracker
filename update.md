@@ -6,13 +6,13 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 ## App Details
 - **App Name:** Hit Track Pro (App Store display name)
 - **Bundle ID:** `com.cfore.hittracker`
-- **Current Version:** 1.0 (fixed) - Build 3
+- **Current Version:** 1.0 (fixed) - Build 4
 - **Deployment Target:** iOS 17.0
 - **Supported Devices:** iPhone and iPad (Universal App)
 - **Swift Version:** 5.0
 - **Development Team:** Z7AM7M3YT2 (CROSSFIRE-FORE INC.)
 - **Repository:** https://github.com/chrisfore/HitTracker.git (public - docs only)
-- **App Store Status:** Ready for submission - Build 3
+- **App Store Status:** Build 4 - Data sharing feature
 
 ### Versioning Strategy
 - **Marketing Version:** 1.0 (stays fixed for all updates)
@@ -29,11 +29,19 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 2. **Multiple Teams** - Track multiple opponent teams, each with their own roster
 3. **Live Stats** - Spray charts, hit type breakdown, pitch location analysis
 4. **PDF Export** - Professional reports with team logo and date filtering
-5. **iCloud Sync** - Automatic sync across all Apple devices
-6. **Dark Mode** - Support for light and dark themes
-7. **Adjustable Text Size** - Control text size app-wide from Settings
+5. **Data Sharing** - Share player/team/all data as .hitdata files with other coaches
+6. **Data Import** - Import shared .hitdata files via document picker or tap-to-open
+7. **iCloud Sync** - Automatic sync across all Apple devices
+8. **Dark Mode** - Support for light and dark themes
+9. **Adjustable Text Size** - Control text size app-wide from Settings
 
-## Recent Changes (Build 3)
+## Recent Changes (Build 4)
+- **Data Sharing:** Share player, team, or all data as .hitdata files via share sheet
+- **Data Import:** Import shared data via document picker or by tapping a .hitdata file
+- **Custom File Type:** Registered .hitdata UTType so iOS opens files directly in Hit Track Pro
+- **Help Updated:** Added sharing & importing documentation to in-app help
+
+## Previous Changes (Build 3)
 - **Improved iPad UI:** Redesigned hit input sheet with FlowLayout for better button wrapping
 - **Larger Spray Charts:** Doubled spray chart size from 200x200 to 400x400 for better readability
 - **Text Size Controls:** Added text size picker in Settings > Appearance (System/Small/Medium/Large/Extra Large)
