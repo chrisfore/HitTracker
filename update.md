@@ -12,7 +12,7 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 - **Swift Version:** 5.0
 - **Development Team:** Z7AM7M3YT2 (CROSSFIRE-FORE INC.)
 - **Repository:** https://github.com/chrisfore/HitTracker.git (public - docs only)
-- **App Store Status:** Version 1.15 - In-app purchase for data export
+- **App Store Status:** Version 1.15 - Free non-profit app
 
 ### Versioning Strategy
 - **Marketing Version:** 1.15
@@ -28,24 +28,17 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 1. **Hit Tracking** - Tap softball field to record hit location, type, and pitch details
 2. **Multiple Teams** - Track multiple opponent teams, each with their own roster
 3. **Live Stats** - Spray charts, hit type breakdown, pitch location analysis
-4. **PDF Export** - Professional reports with team logo and date filtering (Pro Data Export)
-5. **Data Sharing** - Share player/team/all data as .hitdata files with other coaches (Pro Data Export)
-6. **Data Import** - Import shared .hitdata files via document picker or tap-to-open (Pro Data Export)
-7. **In-App Purchase** - One-time $2.99 non-consumable purchase unlocks all export/sharing features
-8. **iCloud Sync** - Automatic sync across all Apple devices
+4. **PDF Export** - Professional reports with team logo and date filtering
+5. **Data Sharing** - Share player/team/all data as .hitdata files with other coaches
+6. **Data Import** - Import shared .hitdata files via document picker or tap-to-open
+7. **iCloud Sync** - Automatic sync across all Apple devices
 9. **Dark Mode** - Support for light and dark themes
 10. **Adjustable Text Size** - Control text size app-wide from Settings
 
 ## Recent Changes (Version 1.15 Build 1)
-- **In-App Purchase:** Added StoreKit 2 non-consumable IAP to gate export/sharing features
-- **Product ID:** `com.cfore.hittracker.dataexport` ($2.99 one-time purchase)
-- **Gated Features:** PDF export, Share Player/Team/All Data, Import Shared Data
-- **Free Features:** All hit tracking, analytics, spray charts, team/player management
-- **Sample Report:** Non-purchasers can preview a sample PDF with placeholder data and watermark
-- **Restore Purchases:** Apple-compliant restore button in Settings > Purchases
-- **Purchase Error Handling:** Alerts shown on purchase failure
-- **StoreKit Config:** Configuration.storekit file for local/simulator testing
-- **Help Updated:** New "Pro Data Export" section explaining the purchase
+- **IAP Removed:** App is completely free — non-profit organization, no in-app purchases allowed
+- **All Features Free:** PDF export, data sharing, data import — all fully accessible
+- **Version Update:** 1.0 → 1.15, Build reset to 1
 
 ## Previous Changes (Build 4)
 - **Data Sharing:** Share player, team, or all data as .hitdata files via share sheet
@@ -70,13 +63,6 @@ Hit Track Pro is a universal SwiftUI iOS app for tracking softball/baseball hits
 - **Storage:** NSUbiquitousKeyValueStore (iCloud) + UserDefaults (local fallback)
 - **Sync:** Automatic cross-device sync via iCloud
 - **Real-time Updates:** App refreshes when data changes from another device
-
-### In-App Purchase (StoreKit 2)
-- **Manager:** StoreKitManager singleton (@MainActor, ObservableObject)
-- **Product:** Non-consumable, ID `com.cfore.hittracker.dataexport`
-- **Persistence:** UserDefaults cache for offline access, verified with StoreKit on launch
-- **Transaction Listener:** Background task for transaction updates
-- **Injected as:** @EnvironmentObject from HitTrackerApp
 
 ## Build Commands
 
