@@ -1,0 +1,28 @@
+WHAT'S NEW IN VERSION 1.15
+==========================
+
+SHARE SCOUTING DATA WITH OTHER COACHES
+• Share individual player data, entire teams, or all your data with fellow coaches
+• Export as .hitdata files via AirDrop, Messages, email, or any sharing method
+• Import data from other coaches — just tap a .hitdata file or use the Import button in Settings
+• Imported data is added alongside your existing data with no conflicts
+
+IMPROVED iPAD EXPERIENCE
+• Redesigned hit input layout for better button visibility on iPad
+• Larger spray charts for improved readability on bigger screens
+• Optimized layouts for all screen sizes
+
+ADJUSTABLE TEXT SIZE
+• New text size controls in Settings — choose from System, Small, Medium, Large, or Extra Large
+• Applied app-wide for a comfortable viewing experience
+
+PDF SCOUTING REPORTS
+• Export professional PDF reports with spray charts and hit breakdowns
+• Include your team logo on reports
+• Filter by date range to focus on recent games
+• Share reports with players, parents, or coaching staff
+
+ADDITIONAL IMPROVEMENTS
+• Dark mode support for evening games
+• iCloud sync keeps your data up to date across all your Apple devices
+• Completely free — no subscriptions, no ads
