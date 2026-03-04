@@ -1,6 +1,6 @@
 # Privacy Policy for Hit Track Pro
 
-**Last Updated:** March 2, 2026
+**Last Updated:** March 4, 2026
 
 ## Overview
 
@@ -74,6 +74,15 @@ Hit Track Pro allows you to export PDF reports containing your statistics. When 
 
 Hit Track Pro does not knowingly collect any information from anyone, including children under 13. The app is designed for coaches to track opponent statistics and requires no personal information.
 
+## In-App Purchases
+
+Hit Track Pro offers an optional in-app purchase ("Pro Data Export") to unlock PDF export and data sharing features. Purchase transactions:
+
+- Are processed entirely by Apple through the App Store
+- We do not collect any payment or financial information
+- Purchase status is stored locally on your device
+- Governed by [Apple's Terms of Service](https://www.apple.com/legal/internet-services/itunes/)
+
 ## Third-Party Services
 
 Hit Track Pro does NOT use:
@@ -84,7 +93,7 @@ Hit Track Pro does NOT use:
 - Third-party data processors
 - External servers or APIs
 
-The only external service used is Apple's iCloud (optional), which is governed by Apple's privacy policy.
+The only external services used are Apple's iCloud (optional) and Apple's App Store for in-app purchases, both governed by Apple's privacy policy.
 
 ## Data Security
 
